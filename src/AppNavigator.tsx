@@ -8,6 +8,10 @@ import DrawerContent from './Home/DrawerContent';
 import SettingsScreen from './Home/SettingsScreen';
 import AboutUs from './Home/AboutUs';
 import ContactUs from './Home/ContactUs';
+import WheelScreen from './Home/screens/WheelScreen';
+import QuizScreen from './Home/screens/QuizScreen';
+import GuessScreen from './Home/screens/GuessScreen';
+import ResultScreen from './Home/screens/ResultScreen';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -46,9 +50,17 @@ const AppNavigator = ({
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {isLoggedIn ? (
-          <Stack.Screen name="Home">
-            {props => <DrawerNavigator {...props} onLogout={onLogout} />}
-          </Stack.Screen>
+          <>
+            <Stack.Screen name="Home">
+              {props => <DrawerNavigator {...props} onLogout={onLogout} />}
+            </Stack.Screen>
+
+            {/* Added Game Flow Screens */}
+            <Stack.Screen name="WheelScreen" component={WheelScreen} />
+            <Stack.Screen name="QuizScreen" component={QuizScreen} />
+            <Stack.Screen name="GuessScreen" component={GuessScreen} />
+            <Stack.Screen name="ResultScreen" component={ResultScreen} />
+          </>
         ) : (
           <Stack.Screen name="Onboarding">
             {props => <LovifyScreen {...props} onLogin={onLogin} />}

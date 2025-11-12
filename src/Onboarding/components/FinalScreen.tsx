@@ -8,6 +8,9 @@ import {
   View,
   Alert,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -17,6 +20,7 @@ import {
 } from '@react-native-google-signin/google-signin';
 import UsernameLoginBottom from '../../components/UsernameLoginBottom';
 import { storeData, storeDataJson } from '../../hooks/useAsyncStorage';
+import MainContainer from '../../components/MainContainer';
 const { width: screenWidth } = Dimensions.get('window');
 
 interface FinalScreenProps {
@@ -67,60 +71,70 @@ const FinalScreen: React.FC<FinalScreenProps> = ({ onPrev, onLogin }) => {
   }, []);
 
   return (
-    <View style={[styles.darkScreen, { width: screenWidth }]}>
-      <Text style={styles.logoDark}>
-        Cu<Text style={styles.logoAccent}>pid</Text>
-      </Text>
-
-      <Image
-        source={require('../../assets/images/onboarding3.png')}
-        style={[styles.illustration, { marginTop: 40 }]}
-        resizeMode="contain"
-      />
-
-      <View style={styles.footerBox}>
-        <Text style={styles.footerText}>
-          Made with <Text style={styles.pinkText}>Love</Text>,{'\n'}For Lovely{' '}
-          <Text style={styles.pinkText}>Couples</Text>
-        </Text>
-        {/* Username & Password Login Button */}
-        <TouchableOpacity
-          style={styles.usernameBtn}
-          onPress={() => setShowLoginBottom(true)}
+    <MainContainer>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <ScrollView
+          contentContainerStyle={[styles.darkScreen, { width: screenWidth }]}
+          keyboardShouldPersistTaps="handled"
         >
-          <Text style={styles.usernameText}>Login with Credentials</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.googleBtn, loading && { opacity: 0.7 }]}
-          onPress={handleGoogleLogin}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <View
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+          <Text style={styles.logoDark}>
+            Cu<Text style={styles.logoAccent}>pid</Text>
+          </Text>
+
+          <Image
+            source={require('../../assets/images/onboarding3.png')}
+            style={[styles.illustration, { marginTop: 40 }]}
+            resizeMode="contain"
+          />
+
+          <View style={styles.footerBox}>
+            <Text style={styles.footerText}>
+              Made with <Text style={styles.pinkText}>Love</Text>,{'\n'}For
+              Lovely <Text style={styles.pinkText}>Couples</Text>
+            </Text>
+            {/* Username & Password Login Button */}
+            <TouchableOpacity
+              style={styles.usernameBtn}
+              onPress={() => setShowLoginBottom(true)}
             >
-              <AntDesign name="google" size={20} color="#fff" />
-              <Text style={styles.googleText}>Continue With Google</Text>
-            </View>
+              <Text style={styles.usernameText}>Login with Credentials</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.googleBtn, loading && { opacity: 0.7 }]}
+              onPress={handleGoogleLogin}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <View
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+                >
+                  <AntDesign name="google" size={20} color="#fff" />
+                  <Text style={styles.googleText}>Continue With Google</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+
+            <Text style={styles.termsText}>
+              By continuing, you agree to our{' '}
+              <Text style={styles.linkText}>Privacy Policy</Text> and{' '}
+              <Text style={styles.linkText}>Terms & Conditions</Text>
+            </Text>
+          </View>
+
+          {showLoginBottom && (
+            <UsernameLoginBottom
+              onClose={() => setShowLoginBottom(false)}
+              onLogin={onLogin}
+            />
           )}
-        </TouchableOpacity>
-
-        <Text style={styles.termsText}>
-          By continuing, you agree to our{' '}
-          <Text style={styles.linkText}>Privacy Policy</Text> and{' '}
-          <Text style={styles.linkText}>Terms & Conditions</Text>
-        </Text>
-      </View>
-
-      {showLoginBottom && (
-        <UsernameLoginBottom
-          onClose={() => setShowLoginBottom(false)}
-          onLogin={onLogin} // ✅ triggers main screen navigation
-        />
-      )}
-    </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </MainContainer>
   );
 };
 

@@ -3,6 +3,7 @@ import { Dimensions, ScrollView, StyleSheet } from 'react-native';
 import IntroScreen from './components/IntroScreen';
 import RoundScreen from './components/RoundScreen';
 import FinalScreen from './components/FinalScreen';
+import MainContainer from '../components/MainContainer';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -18,35 +19,37 @@ const LovifyScreen: React.FC<LovifyScreenProps> = ({ onLogin }) => {
   };
 
   return (
-    <ScrollView
-      ref={scrollRef}
-      horizontal
-      pagingEnabled
-      showsHorizontalScrollIndicator={false}
-      style={styles.container}
-    >
-      <IntroScreen onNext={() => handleScroll(1)} />
+    <MainContainer>
+      <ScrollView
+        ref={scrollRef}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        style={styles.container}
+      >
+        <IntroScreen onNext={() => handleScroll(1)} />
 
-      <RoundScreen
-        roundNumber={1}
-        imageUri={require('../assets/images/onboarding1.png')}
-        leftText="Answer,"
-        rightText="What do you like?"
-        onPrev={() => handleScroll(0)}
-        onNext={() => handleScroll(2)}
-      />
+        <RoundScreen
+          roundNumber={1}
+          imageUri={require('../assets/images/onboarding1.png')}
+          leftText="Answer,"
+          rightText="What do you like?"
+          onPrev={() => handleScroll(0)}
+          onNext={() => handleScroll(2)}
+        />
 
-      <RoundScreen
-        roundNumber={2}
-        imageUri={require('../assets/images/onboarding2.png')}
-        leftText="Then, your Partner"
-        rightText="has to guess"
-        onPrev={() => handleScroll(1)}
-        onNext={() => handleScroll(3)}
-      />
+        <RoundScreen
+          roundNumber={2}
+          imageUri={require('../assets/images/onboarding2.png')}
+          leftText="Then, your Partner"
+          rightText="has to guess"
+          onPrev={() => handleScroll(1)}
+          onNext={() => handleScroll(3)}
+        />
 
-      <FinalScreen onPrev={() => handleScroll(2)} onLogin={onLogin} />
-    </ScrollView>
+        <FinalScreen onPrev={() => handleScroll(2)} onLogin={onLogin} />
+      </ScrollView>
+    </MainContainer>
   );
 };
 

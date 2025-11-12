@@ -11,4 +11,5 @@ export const color = {
   bluTextColor: '#00A4D6',
   placeholderColor: '#C0C0C0',
   titleColor: '#21304a',
+  primary: '#ff0000',
 };

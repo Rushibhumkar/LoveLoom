@@ -1,13 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NavigationProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
+import CustomAvatar from '../components/CustomAvatar';
+import { getUserData, useUserData } from '../api/userApi';
+import { myConsole } from '../utils/myConsole';
 
 // Drawer route types
 type DrawerParamList = {
@@ -29,23 +33,60 @@ interface Props {
 const DrawerContent: React.FC<Props> = ({ onLogout }) => {
   // ✅ correct type for drawer navigation
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const { data: user, loading, error, refetch } = useUserData();
+  console.log('usersss', { user, loading, error });
 
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Image
-          source={{
-            uri: 'https://i.pravatar.cc/150?img=12',
-          }}
-          style={styles.avatar}
+        <CustomAvatar
+          imageUrl={user?.profilePic}
+          name={`${user?.userFirstName || ''} ${
+            user?.userSurname || ''
+          }`.trim()}
+          size={65}
         />
-        <Text style={styles.name}>Rushikesh</Text>
+        <Text style={styles.name}>
+          {`${user?.userFirstName || ''} ${user?.userSurname || ''}`.trim() ||
+            'User'}
+        </Text>
       </View>
 
       <View style={styles.divider} />
 
       {/* Menu items */}
+
+      <TouchableOpacity
+        style={styles.menuItem}
+        // onPress={() =>
+        //   navigation.navigate('Home', { screen: 'SettingsScreen' })
+        // }
+      >
+        <MaterialIcons name="workspace-premium" size={20} color="#FF4F72" />
+        <Text style={styles.menuText}>Premium</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.menuItem}
+        // onPress={() =>
+        //   navigation.navigate('Home', { screen: 'SettingsScreen' })
+        // }
+      >
+        <MaterialIcons name="history" size={20} color="#FF4F72" />
+        <Text style={styles.menuText}>History</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.menuItem}
+        // onPress={() =>
+        //   navigation.navigate('Home', { screen: 'SettingsScreen' })
+        // }
+      >
+        <MaterialIcons name="list-alt" size={20} color="#FF4F72" />
+        <Text style={styles.menuText}>Profile</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity
         style={styles.menuItem}
         onPress={() =>
@@ -73,6 +114,14 @@ const DrawerContent: React.FC<Props> = ({ onLogout }) => {
       </TouchableOpacity>
 
       <View style={styles.dividerLight} />
+
+      <TouchableOpacity
+        style={styles.menuItem}
+        onPress={() => navigation.navigate('Home', { screen: 'ContactUs' })}
+      >
+        <Ionicons name="exit-outline" size={20} color="#FF4F72" />
+        <Text style={styles.menuText}>Exit Room</Text>
+      </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.menuItem}
@@ -143,6 +192,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
+    gap: 16,
+    paddingHorizontal: 8,
   },
   menuText: {
     fontSize: 15,

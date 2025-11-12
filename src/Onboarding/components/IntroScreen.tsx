@@ -7,7 +7,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
+import MainContainer from '../../components/MainContainer';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -17,35 +19,37 @@ interface IntroScreenProps {
 
 const IntroScreen: React.FC<IntroScreenProps> = ({ onNext }) => {
   return (
-    <View style={{ width: screenWidth }}>
-      <ImageBackground
-        source={{
-          uri: 'https://images.stockcake.com/public/0/c/6/0c66db9c-7066-496b-9c1b-9daa65d7e01f_large/silhouette-love-moment-stockcake.jpg',
-        }}
-        style={styles.bgImage}
-        resizeMode="cover"
-      >
-        <View style={styles.overlay}>
-          <Text style={styles.logo}>
-            Cu<Text style={styles.logoAccent}>pid</Text>
-          </Text>
-          <View
-            style={{
-              position: 'absolute',
-              bottom: '20%',
-              right: 16,
-              alignItems: 'flex-end',
-            }}
-          >
-            <Text style={styles.mainTitle}>SHARE EVERYTHING</Text>
-            <Text style={styles.subTitle}>without saying</Text>
+    <MainContainer>
+      <View style={{ width: screenWidth }}>
+        <ImageBackground
+          source={{
+            uri: 'https://images.stockcake.com/public/0/c/6/0c66db9c-7066-496b-9c1b-9daa65d7e01f_large/silhouette-love-moment-stockcake.jpg',
+          }}
+          style={styles.bgImage}
+          resizeMode="cover"
+        >
+          <View style={styles.overlay}>
+            <Text style={styles.logo}>
+              Cu<Text style={styles.logoAccent}>pid</Text>
+            </Text>
+            <View
+              style={{
+                position: 'absolute',
+                bottom: '20%',
+                right: 16,
+                alignItems: 'flex-end',
+              }}
+            >
+              <Text style={styles.mainTitle}>SHARE EVERYTHING</Text>
+              <Text style={styles.subTitle}>without saying</Text>
+            </View>
           </View>
-        </View>
-        <TouchableOpacity style={styles.nextBtn} onPress={onNext}>
-          <Feather name="arrow-right" size={28} color="#fff" />
-        </TouchableOpacity>
-      </ImageBackground>
-    </View>
+          <TouchableOpacity style={styles.nextBtn} onPress={onNext}>
+            <Feather name="arrow-right" size={28} color="#fff" />
+          </TouchableOpacity>
+        </ImageBackground>
+      </View>
+    </MainContainer>
   );
 };
 

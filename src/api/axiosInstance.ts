@@ -1,8 +1,10 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { getData } from '../hooks/useAsyncStorage';
 
-// let testUrl = `http://192.168.0.104:5050/api/v1/`;
-let testUrl = `https://api-cupidflow.iceweb.in/`;
+// export const HOST = 'http://192.168.0.103:5050';
+// export const testUrl = `http://192.168.0.103:5050/api/v1/`;
+export const testUrl = `https://api-cupidflow.iceweb.in/api/v1/`;
+export const HOST = 'https://api-cupidflow.iceweb.in/';
 
 export const baseUrl: string = testUrl;
 

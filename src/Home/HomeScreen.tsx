@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+// --------------------------------------------------------
+// HomeScreen.tsx — entry screen for room creation / joining
+// --------------------------------------------------------
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -7,116 +10,251 @@ import {
   TouchableOpacity,
   StyleSheet,
   StatusBar,
+  Alert,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-import { useNavigation, DrawerActions } from '@react-navigation/native';
+import {
+  useNavigation,
+  DrawerActions,
+  useFocusEffect,
+} from '@react-navigation/native';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSocket } from '../hooks/useSocket';
+import { getUserData } from '../api/userApi';
 
-const HomeScreen = ({ onLogout }: any) => {
+const HomeScreen = () => {
   const [roomCode, setRoomCode] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation<DrawerNavigationProp<any>>();
+  const { emit } = useSocket();
 
-  const handleCreateRoom = () => {
-    console.log('Room created!');
+  const [player, setPlayer] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const user = await getUserData();
+      if (user) {
+        console.log('[INIT] Logged-in user loaded:', user);
+        setPlayer({
+          userID: user.userID,
+          name: `${user.userFirstName || ''} ${user.userSurname || ''}`.trim(),
+        });
+      } else {
+        console.warn('[WARN] No user data found in AsyncStorage');
+      }
+    };
+    fetchUser();
+  }, []);
+
+  // ✅ Reset state when coming back from ResultScreen (Play Again)
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('[NAV] HomeScreen focused — resetting state');
+      setRoomCode('');
+      setLoading(false);
+      AsyncStorage.removeItem('roomId');
+    }, []),
+  );
+
+  console.log('[INIT] Player object =>', player);
+
+  // 🔹 CREATE ROOM
+  const handleCreateRoom = async () => {
+    if (loading) return;
+    if (!player) {
+      Alert.alert('User not found', 'Please login again.');
+      console.warn('[ERROR] No player found in state');
+      setLoading(false);
+      return;
+    }
+
+    console.log('[ACTION] Create Room clicked');
+    setLoading(true);
+
+    const payload = { userID: player.userID, name: player.name };
+    console.log('[EMIT] create_room =>', payload);
+
+    emit('create_room', payload, async res => {
+      console.log('[SOCKET_RESPONSE] create_room =>', res);
+      setLoading(false);
+
+      if (res?.success) {
+        console.log('[ROOM] Room created successfully =>', res.roomId);
+        await AsyncStorage.setItem('roomId', res.roomId);
+        navigation.navigate('WheelScreen', {
+          roomId: res.roomId,
+          userID: player.userID,
+          name: player.name,
+          role: 'host',
+        });
+      } else {
+        console.warn('[ERROR] Room creation failed =>', res);
+        Alert.alert('Error', res?.message || 'Failed to create room');
+      }
+    });
   };
 
-  const handleJoinRoom = () => {
-    console.log('Joined room:', roomCode);
+  // 🔹 JOIN ROOM
+  const handleJoinRoom = async () => {
+    console.log('[ACTION] Join Room clicked with code =>', roomCode);
+    if (!roomCode.trim()) {
+      console.warn('[VALIDATION] No room code entered');
+      return Alert.alert('Enter a valid Room ID');
+    }
+    if (!player) {
+      Alert.alert('User not found', 'Please login again.');
+      console.warn('[ERROR] No player found in state');
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    const payload = {
+      roomId: roomCode.trim(),
+      userID: player.userID,
+      name: player.name,
+    };
+
+    console.log('[EMIT] join_room =>', payload);
+
+    emit('join_room', payload, async res => {
+      console.log('[SOCKET_RESPONSE] join_room =>', res);
+      setLoading(false);
+
+      if (res?.success) {
+        console.log('[ROOM] Joined room successfully =>', roomCode.trim());
+        await AsyncStorage.setItem('roomId', roomCode.trim());
+        navigation.navigate('WheelScreen', {
+          roomId: roomCode.trim(),
+          userID: player.userID,
+          name: player.name,
+          role: res.role || 'guest',
+        });
+      } else {
+        console.warn('[ERROR] Join room failed =>', res);
+        Alert.alert(
+          'Join Failed',
+          res?.message || 'Room not found or user not recognized',
+        );
+      }
+    });
   };
 
+  // 🔹 UI
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor="#101031" />
-      <View style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={{ position: 'absolute', left: 0 }} // ✅ keeps icon clickable but text centered
-            onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
-          >
-            <Feather name="menu" size={28} color="#fff" />
-          </TouchableOpacity>
-          <Text style={styles.logo}>
-            Cu<Text style={styles.logoAccent}>pid</Text>
-          </Text>
-        </View>
 
-        {/* Illustration */}
-        <Image
-          source={{
-            uri: 'https://img.freepik.com/free-vector/boy-girl-with-chat-bubble-message_24877-53848.jpg?semt=ais_hybrid&w=740&q=80',
-          }}
-          resizeMode="contain"
-          style={styles.image}
-        />
+      {/* ✅ Added wrapper for keyboard handling */}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={{ flex: 1 }}
+      >
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.container}>
+            {/* Header */}
+            <View style={styles.header}>
+              <TouchableOpacity
+                style={{ position: 'absolute', left: 0 }}
+                onPress={() => {
+                  // console.log('[UI] Drawer menu opened');
+                  navigation.dispatch(DrawerActions.openDrawer());
+                }}
+              >
+                <Feather name="menu" size={28} color="#fff" />
+              </TouchableOpacity>
+              <Text style={styles.logo}>
+                Cu<Text style={styles.logoAccent}>pid</Text>
+              </Text>
+            </View>
 
-        {/* Title */}
-        <Text style={styles.title}>Connect with your Partner</Text>
+            {/* Illustration */}
+            <Image
+              source={{
+                uri: 'https://img.freepik.com/free-vector/boy-girl-with-chat-bubble-message_24877-53848.jpg?semt=ais_hybrid&w=740&q=80',
+              }}
+              resizeMode="contain"
+              style={styles.image}
+            />
 
-        {/* Create Room Section */}
-        <View style={styles.section}>
-          <Text style={styles.subText}>*To Generate Room ID</Text>
+            <Text style={styles.title}>Connect with your Partner</Text>
 
-          <TouchableOpacity
-            style={styles.createRoomBtn}
-            onPress={handleCreateRoom}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.createRoomText}>Create Room</Text>
-          </TouchableOpacity>
+            {/* Actions */}
+            <View style={styles.section}>
+              <Text style={styles.subText}>*To Generate Room ID</Text>
 
-          <View style={styles.orContainer}>
-            <View style={styles.line} />
-            <Text style={styles.orText}>OR</Text>
-            <View style={styles.line} />
+              <TouchableOpacity
+                style={[styles.createRoomBtn, loading && { opacity: 0.6 }]}
+                onPress={handleCreateRoom}
+                activeOpacity={0.8}
+                disabled={loading}
+              >
+                <Text style={styles.createRoomText}>
+                  {loading ? 'Creating...' : 'Create Room'}
+                </Text>
+              </TouchableOpacity>
+
+              <View style={styles.orContainer}>
+                <View style={styles.line} />
+                <Text style={styles.orText}>OR</Text>
+                <View style={styles.line} />
+              </View>
+
+              <TextInput
+                value={roomCode}
+                onChangeText={text => {
+                  console.log('[INPUT] Room code changed =>', text);
+                  setRoomCode(text);
+                }}
+                placeholder="XXXXX"
+                placeholderTextColor="#A5A5B5"
+                style={styles.input}
+                textAlign="center"
+              />
+
+              <TouchableOpacity
+                style={[styles.joinRoomBtn, loading && { opacity: 0.6 }]}
+                onPress={handleJoinRoom}
+                activeOpacity={0.8}
+                disabled={loading}
+              >
+                <Text style={styles.joinRoomText}>
+                  {loading ? 'Joining...' : 'Join Room'}
+                </Text>
+              </TouchableOpacity>
+
+              <Text style={styles.bottomText}>Enter Partner's Room ID</Text>
+            </View>
           </View>
-
-          {/* Room Input */}
-          <TextInput
-            value={roomCode}
-            onChangeText={setRoomCode}
-            placeholder="XXXXX"
-            placeholderTextColor="#A5A5B5"
-            style={styles.input}
-            textAlign="center"
-          />
-
-          <TouchableOpacity
-            style={styles.joinRoomBtn}
-            onPress={handleJoinRoom}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.joinRoomText}>Join Room</Text>
-          </TouchableOpacity>
-
-          <Text style={styles.bottomText}>Enter Partner's Room ID</Text>
-        </View>
-      </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
 
 export default HomeScreen;
 
+// --------------------------------------------------------
+// Styles
+// --------------------------------------------------------
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#101031',
-  },
-  container: {
-    flex: 1,
-    alignItems: 'center',
-  },
-
+  safeArea: { flex: 1, backgroundColor: '#101031' },
+  container: { flex: 1, alignItems: 'center' },
   header: {
     width: '90%',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center', // ✅ centers Cupid text
+    justifyContent: 'center',
     marginTop: 10,
   },
-
   logo: {
     fontSize: 28,
     fontWeight: '700',
@@ -124,16 +262,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     alignSelf: 'center',
   },
-  logoAccent: {
-    color: '#FF4F72',
-  },
-
-  image: {
-    width: '85%',
-    height: 220,
-    marginTop: 30,
-  },
-
+  logoAccent: { color: '#FF4F72' },
+  image: { width: '85%', height: 220, marginTop: 30 },
   title: {
     color: '#fff',
     fontSize: 18,
@@ -141,20 +271,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 25,
   },
-
-  section: {
-    marginTop: 40,
-    width: '85%',
-    alignItems: 'center',
-  },
-
+  section: { marginTop: 40, width: '85%', alignItems: 'center' },
   subText: {
     color: '#BFBFD3',
     fontSize: 12,
     alignSelf: 'flex-start',
     marginBottom: 10,
   },
-
   createRoomBtn: {
     width: '100%',
     backgroundColor: '#FF4F72',
@@ -162,29 +285,15 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: 'center',
   },
-  createRoomText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-
+  createRoomText: { color: '#fff', fontSize: 16, fontWeight: '600' },
   orContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 25,
     width: '100%',
   },
-  orText: {
-    color: '#D9D9E3',
-    fontSize: 12,
-    marginHorizontal: 8,
-  },
-  line: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#2E2E4E',
-  },
-
+  orText: { color: '#D9D9E3', fontSize: 12, marginHorizontal: 8 },
+  line: { flex: 1, height: 1, backgroundColor: '#2E2E4E' },
   input: {
     width: '100%',
     backgroundColor: '#fff',
@@ -195,7 +304,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginBottom: 18,
   },
-
   joinRoomBtn: {
     width: '100%',
     borderWidth: 1,
@@ -204,15 +312,6 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: 'center',
   },
-  joinRoomText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-
-  bottomText: {
-    color: '#A5A5B5',
-    fontSize: 12,
-    marginTop: 8,
-  },
+  joinRoomText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  bottomText: { color: '#A5A5B5', fontSize: 12, marginTop: 8 },
 });

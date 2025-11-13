@@ -59,10 +59,12 @@ const UsernameLoginBottom = ({ onClose, onLogin }: any) => {
       <Text style={styles.title}>Login</Text>
       <Formik
         initialValues={{
-          userEmail: 'testing@dev.com',
-          userPassword: 'testing@dev.com',
-          // userEmail: 'rushibhumkar12@gmail.com',
-          // userPassword: '123456789',
+          // userEmail: '',
+          // userPassword: '',
+          // userEmail: 'testing@dev.com',
+          // userPassword: 'testing@dev.com',
+          userEmail: 'rushibhumkar12@gmail.com',
+          userPassword: '123456789',
         }}
         validationSchema={schema}
         onSubmit={handleSubmit}

@@ -2,9 +2,11 @@
 // ResultScreen.tsx — Final Results Display
 // ---------------------------------------
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSocket } from '../../hooks/useSocket';
+import { myConsole } from '../../utils/myConsole';
 
 interface ResultData {
   hostName: string;
@@ -17,31 +19,52 @@ const ResultScreen: React.FC = () => {
   const route = useRoute<any>();
   const result: ResultData = route.params?.result;
   const navigation = useNavigation<any>();
+  const { socket, emit } = useSocket();
+  myConsole('route.params', route.params);
 
-  const handlePlayAgain = () => {
-    console.log('🔁 Play Again clicked');
-    const prevParams = route.params; // ✅ get previous session context
-    const { roomId, userID, name, role, categoryId } = prevParams || {};
-    navigation.reset({
-      index: 0,
-      routes: [
-        {
-          name: 'WheelScreen',
-          params: {
-            roomId: roomId || '', // ✅ reuse old room
-            userID: userID || '', // ✅ current user ID
-            name: name || result.hostName || result.guestName,
-            role: role || 'host', // ✅ preserve same role
-            categoryId: categoryId || null, // optional if used later
-          },
-        },
-      ],
-    });
-  };
+  const { roomId, userID, name, role, categoryId } = route.params || {};
 
   useEffect(() => {
     console.log('🏁 Final result received on ResultScreen =>', result);
   }, [result]);
+
+  const handlePlayAgain = () => {
+    if (!roomId) {
+      Alert.alert('Room not found', 'Unable to restart without room ID.');
+      return;
+    }
+
+    console.log('🔁 Play Again clicked => emitting restart_game');
+    emit('restart_game', { roomId }, (res: any) => {
+      console.log('[ACK] restart_game =>', res);
+      if (res?.success) {
+        if (route.params.role === 'host') {
+          Alert.alert('Game restarted!', 'Spinning wheel is ready again.');
+        }
+
+        navigation.reset({
+          index: 0,
+          routes: [
+            {
+              name: 'WheelScreen',
+              params: {
+                roomId,
+                userID,
+                name:
+                  route.params.role === 'guest'
+                    ? route.params.result.guestName
+                    : route.params.result.hostName,
+                role: role || (result.hostName === name ? 'host' : 'guest'),
+                categoryId: null,
+              },
+            },
+          ],
+        });
+      } else {
+        Alert.alert('Failed to restart', res?.message || 'Please try again.');
+      }
+    });
+  };
 
   if (!result) {
     return (
@@ -78,6 +101,7 @@ const ResultScreen: React.FC = () => {
           <Text style={styles.scoreValue}>{result.guestScore}</Text>
         </View>
       </View>
+
       <TouchableOpacity style={styles.playAgainBtn} onPress={handlePlayAgain}>
         <Text style={styles.playAgainText}>🔁 Play Again</Text>
       </TouchableOpacity>
@@ -110,8 +134,6 @@ const styles = StyleSheet.create({
     width: '85%',
     alignItems: 'center',
     justifyContent: 'center',
-
-    // Shadow
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.2,

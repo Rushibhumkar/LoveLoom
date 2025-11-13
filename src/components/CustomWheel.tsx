@@ -83,7 +83,7 @@ const CustomWheel = forwardRef<CustomWheelRef, Props>(
       setIsSpinning(true);
 
       const finalRotation =
-        360 * 10 + index * anglePerSegment + anglePerSegment / 2;
+        360 * 10 - (index * anglePerSegment + anglePerSegment / 2) - 90;
 
       Animated.timing(animatedRotation, {
         toValue: finalRotation,
@@ -122,7 +122,7 @@ const CustomWheel = forwardRef<CustomWheelRef, Props>(
                 cy={size / 2}
                 r={size / 2 - 2}
                 stroke="#fff"
-                strokeWidth={4}
+                strokeWidth={12}
                 fill="none"
               />
               {segments.map((seg, i) => (
@@ -136,9 +136,10 @@ const CustomWheel = forwardRef<CustomWheelRef, Props>(
               ))}
               {segments.map((seg, i) => {
                 const angle = (i + 0.5) * anglePerSegment;
-                const r = size / 2 - 40;
+                const r = size / 2 - 55; // ✅ move text further inward
                 const x = size / 2 + r * Math.cos((angle * Math.PI) / 180);
                 const y = size / 2 + r * Math.sin((angle * Math.PI) / 180);
+
                 return (
                   <SvgText
                     key={`text-${i}`}

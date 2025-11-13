@@ -1,13 +1,24 @@
+// ------------------------------------------------------
+// MainContainer.tsx — Safe Area Wrapper Component
+// ------------------------------------------------------
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StyleSheet } from 'react-native';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import { myConsole } from '../utils/myConsole';
 
-const MainContainer = ({ children }: { children: React.ReactNode }) => {
+interface Props {
+  children: React.ReactNode;
+}
+
+const MainContainer: React.FC<Props> = ({ children }) => {
   const insets = useSafeAreaInsets();
-  myConsole('intesss', insets);
+  // myConsole('Insets:', insets);
+
   return (
-    <View
+    <SafeAreaView
       style={[
         styles.container,
         {
@@ -17,17 +28,21 @@ const MainContainer = ({ children }: { children: React.ReactNode }) => {
           paddingRight: insets.right,
         },
       ]}
+      edges={['top', 'bottom', 'left', 'right']}
     >
       {children}
-    </View>
+    </SafeAreaView>
   );
 };
 
 export default MainContainer;
 
+// ------------------------------------------------------
+// Styles
+// ------------------------------------------------------
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000', // or your default background
+    backgroundColor: '#000', // Default background color
   },
 });

@@ -29,14 +29,15 @@ interface Props {
         chosenCategory?: { id?: string };
         category?: { id?: string };
       };
-
+      role: 'host' | 'guest';
       categoryId: string;
     };
   };
 }
 
 const GuessScreen: React.FC<Props> = ({ route }) => {
-  const { roomId, userID, payload, categoryId } = route.params;
+  const { roomId, userID, payload, categoryId, role } = route.params;
+  console.log('rolesss in guess screen', role);
   const resolvedCategoryId =
     categoryId ||
     payload?.categoryId ||
@@ -68,14 +69,24 @@ const GuessScreen: React.FC<Props> = ({ route }) => {
         roomId,
         userID,
         categoryId,
+        role,
       });
     },
   });
 
   const hostAnswers = payload?.hostAnswers || [];
   const guestAnswers = payload?.guestAnswers || [];
-  const partnerAnswers =
-    hostAnswers[0]?.userID === userID ? guestAnswers : hostAnswers;
+  // const partnerAnswers =
+  //   hostAnswers[0]?.userID === userID ? guestAnswers : hostAnswers;
+  const partnerAnswers = React.useMemo(() => {
+    const base = hostAnswers[0]?.userID === userID ? guestAnswers : hostAnswers;
+    // ✅ filter unique by question_id for fresh start
+    return base.filter(
+      (obj, index, self) =>
+        index ===
+        self.findIndex(o => String(o.question_id) === String(obj.question_id)),
+    );
+  }, [payload, userID]);
 
   useEffect(() => {
     console.log('📦 Incoming Payload =>', payload);
@@ -83,6 +94,10 @@ const GuessScreen: React.FC<Props> = ({ route }) => {
     console.log('🧩 Guest Answers:', guestAnswers);
     console.log('🧠 Partner Answers to Display:', partnerAnswers);
 
+    setQuestions([]);
+    setGuesses([]);
+    setSubmitted(false);
+    setLoading(true);
     fetchQuestions(resolvedCategoryId);
   }, [resolvedCategoryId]);
 
@@ -122,7 +137,7 @@ const GuessScreen: React.FC<Props> = ({ route }) => {
     console.log('🚀 Submitting guesses =>', guesses);
     emit('submit_guess', { roomId, userID, guesses }, (res: any) => {
       console.log('[SOCKET_RESPONSE] submit_guess =>', res);
-      Alert.alert('Submitted successfully!', 'Waiting for partner...');
+      // Alert.alert('Submitted successfully!', 'Waiting for partner...');
       setSubmitted(true);
     });
   };
@@ -138,12 +153,19 @@ const GuessScreen: React.FC<Props> = ({ route }) => {
     );
   }
 
+  // ✅ Ensure unique partner answers by question_id
+  const uniquePartnerAnswers = partnerAnswers.filter(
+    (obj, index, self) =>
+      index ===
+      self.findIndex(o => String(o.question_id) === String(obj.question_id)),
+  );
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Guess your partner’s answers</Text>
 
       {partnerAnswers && partnerAnswers.length > 0 ? (
-        partnerAnswers.map((pa: any, idx: number) => {
+        uniquePartnerAnswers.map((pa: any, idx: number) => {
           const qid = String(pa.question_id);
           const q =
             questions.find(
@@ -181,12 +203,10 @@ const GuessScreen: React.FC<Props> = ({ route }) => {
 
               {opts.length > 0 ? (
                 opts.map((opt, oidx) => {
-                  const isSelected = Boolean(
-                    guesses.find(
-                      g =>
-                        g.question_id === pa.question_id &&
-                        g.guessedAnswer === opt,
-                    ),
+                  const isSelected = guesses.some(
+                    g =>
+                      g.question_id === pa.question_id &&
+                      g.guessedAnswer === opt,
                   );
                   return (
                     <TouchableOpacity

@@ -12,6 +12,7 @@ import WheelScreen from './Home/screens/WheelScreen';
 import QuizScreen from './Home/screens/QuizScreen';
 import GuessScreen from './Home/screens/GuessScreen';
 import ResultScreen from './Home/screens/ResultScreen';
+import ReadyToPlay from './Home/screens/ReadyToPlay';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -56,6 +57,7 @@ const AppNavigator = ({
             </Stack.Screen>
 
             {/* Added Game Flow Screens */}
+            <Stack.Screen name="ReadyToPlay" component={ReadyToPlay} />
             <Stack.Screen name="WheelScreen" component={WheelScreen} />
             <Stack.Screen name="QuizScreen" component={QuizScreen} />
             <Stack.Screen name="GuessScreen" component={GuessScreen} />

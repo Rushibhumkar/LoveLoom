@@ -86,11 +86,13 @@ const HomeScreen = () => {
       if (res?.success) {
         console.log('[ROOM] Room created successfully =>', res.roomId);
         await AsyncStorage.setItem('roomId', res.roomId);
-        navigation.navigate('WheelScreen', {
+        console.log('[NAV] Navigating to ReadyToPlay (HOST waiting for GUEST)');
+        navigation.navigate('ReadyToPlay', {
           roomId: res.roomId,
-          userID: player.userID,
-          name: player.name,
+          host: { userID: player?.userID, name: player.name, avatar: null },
+          guest: { userID: '', name: player?.name, avatar: null },
           role: 'host',
+          waitingFor: 'guest',
         });
       } else {
         console.warn('[ERROR] Room creation failed =>', res);
@@ -129,11 +131,15 @@ const HomeScreen = () => {
       if (res?.success) {
         console.log('[ROOM] Joined room successfully =>', roomCode.trim());
         await AsyncStorage.setItem('roomId', roomCode.trim());
-        navigation.navigate('WheelScreen', {
+        console.log(
+          '[NAV] Navigating to ReadyToPlay (GUEST joined, waiting for HOST)',
+        );
+        navigation.navigate('ReadyToPlay', {
           roomId: roomCode.trim(),
-          userID: player.userID,
-          name: player.name,
-          role: res.role || 'guest',
+          host: { userID: player?.userID, name: player.name, avatar: null },
+          guest: { userID: player?.userID, name: player?.name, avatar: null },
+          role: 'guest',
+          waitingFor: 'host',
         });
       } else {
         console.warn('[ERROR] Join room failed =>', res);
@@ -211,7 +217,7 @@ const HomeScreen = () => {
               <TextInput
                 value={roomCode}
                 onChangeText={text => {
-                  console.log('[INPUT] Room code changed =>', text);
+                  // console.log('[INPUT] Room code changed =>', text);
                   setRoomCode(text);
                 }}
                 placeholder="XXXXX"

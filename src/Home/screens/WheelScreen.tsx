@@ -10,14 +10,18 @@ import {
   ActivityIndicator,
   Alert,
   ToastAndroid,
+  BackHandler,
+  StatusBar,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { DrawerActions, useNavigation } from '@react-navigation/native';
 import CustomWheel, { CustomWheelRef } from '../../components/CustomWheel';
 import { useSocket } from '../../hooks/useSocket';
 import { color } from '../../const/color';
 import { testUrl } from '../../api/axiosInstance';
 import MainContainer from '../../components/MainContainer';
 import { myConsole } from '../../utils/myConsole';
+import { useRoomConnection } from '../../hooks/useRoomConnection';
+import Feather from 'react-native-vector-icons/Feather';
 
 interface Props {
   route: {
@@ -32,6 +36,7 @@ interface Props {
 
 const WheelScreen: React.FC<Props> = ({ route }) => {
   const { roomId, userID, name, role } = route.params;
+  useRoomConnection(role, userID);
   myConsole('route.params.namemeee', route.params.name);
   const navigation = useNavigation<any>();
   const { socket, emit } = useSocket();
@@ -47,7 +52,7 @@ const WheelScreen: React.FC<Props> = ({ route }) => {
   const [loading, setLoading] = useState(true);
   const [isSpinning, setIsSpinning] = useState(false);
   const [ready, setReady] = useState(false);
-
+  myConsole('selectedCategoryrrr', selectedCategory);
   // ✅ Fetch categories
   useEffect(() => {
     (async () => {
@@ -98,6 +103,7 @@ const WheelScreen: React.FC<Props> = ({ route }) => {
         userID,
         name,
         categoryId: selectedCategoryId,
+        selectedCategory,
         role,
       });
     };
@@ -151,6 +157,7 @@ const WheelScreen: React.FC<Props> = ({ route }) => {
           userID,
           name,
           categoryId: selectedCategoryId,
+          selectedCategory,
           role,
         });
       } else {
@@ -158,6 +165,38 @@ const WheelScreen: React.FC<Props> = ({ route }) => {
       }
     });
   };
+
+  useEffect(() => {
+    const backAction = () => {
+      Alert.alert(
+        'Leave Room',
+        'Are you sure you want to leave the room?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Yes',
+            style: 'destructive',
+            onPress: () => {
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'Home' }],
+              });
+            },
+          },
+        ],
+        { cancelable: true },
+      );
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+    return () => {
+      backHandler.remove();
+    };
+  }, [navigation]);
 
   if (loading)
     return (
@@ -173,14 +212,39 @@ const WheelScreen: React.FC<Props> = ({ route }) => {
 
   return (
     <MainContainer>
+      <StatusBar barStyle={'dark-content'} backgroundColor={'#a8d8ff'} />
       <View style={styles.container}>
-        <Text style={styles.heading}>🎡 Spin the Wheel</Text>
+        <TouchableOpacity
+          style={{
+            position: 'absolute',
+            left: 16,
+            // backgroundColor: 'red',
+            top: 12,
+          }}
+          onPress={() => {
+            navigation
+              .getParent('DrawerRoot')
+              ?.dispatch(DrawerActions.openDrawer());
+          }}
+        >
+          <Feather name="menu" size={28} color="#0b0e1eff" />
+        </TouchableOpacity>
+        <Text style={styles.heading}>🎡 Spin the Wheel of Love 💞</Text>
 
         <View style={styles.wheelContainer}>
           <CustomWheel
             ref={wheelRef}
             segments={segments}
-            segColors={['#FF4F72', '#101031', '#6D8CEF', '#FFA500', '#008000']}
+            segColors={[
+              '#FF69B4',
+              '#BA55D3',
+              '#87CEEB',
+              // '#87CEFA',
+              '#FFB6C1',
+              '#DDA0DD',
+              '#F0E68C',
+              '#FFA07A',
+            ]}
             duration={4500}
             onFinished={seg => {
               console.log('[LOCAL] Spin finished =>', seg.text);
@@ -194,15 +258,17 @@ const WheelScreen: React.FC<Props> = ({ route }) => {
         </View>
 
         <Text style={styles.categoryText}>
-          Selected Category:{' '}
+          💖 Selected Category:{' '}
           <Text style={styles.highlight}>
-            {selectedCategory !== 'None yet' ? selectedCategory : 'Not yet'}
+            {selectedCategory !== 'None yet'
+              ? `✨ ${selectedCategory}`
+              : 'Not yet 🕓'}
           </Text>
         </Text>
 
         {selectedCategoryId && !ready && (
           <TouchableOpacity style={styles.readyBtn} onPress={handleReadyClick}>
-            <Text style={styles.readyText}>✅ READY TO PLAY</Text>
+            <Text style={styles.readyText}>🚀 READY TO PLAY 💕</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -218,6 +284,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#a8d8ff',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 30,
     paddingHorizontal: 20,
   },
   heading: {
@@ -234,6 +301,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 20,
     color: '#444',
+    textAlign: 'center',
   },
   highlight: {
     fontWeight: '700',

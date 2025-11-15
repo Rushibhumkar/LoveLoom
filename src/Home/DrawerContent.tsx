@@ -117,7 +117,27 @@ const DrawerContent: React.FC<Props> = ({ onLogout }) => {
 
       <TouchableOpacity
         style={styles.menuItem}
-        onPress={() => navigation.navigate('Home', { screen: 'ContactUs' })}
+        onPress={async () => {
+          Alert.alert(
+            'Leave Room',
+            'Are you sure you want to leave the room?',
+            [
+              { text: 'Cancel', style: 'cancel' },
+              {
+                text: 'Yes',
+                style: 'destructive',
+                onPress: async () => {
+                  await AsyncStorage.removeItem('roomId'); // ✅ clear saved room
+                  navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'Home' }], // ✅ go back to home
+                  });
+                },
+              },
+            ],
+            { cancelable: true },
+          );
+        }}
       >
         <Ionicons name="exit-outline" size={20} color="#FF4F72" />
         <Text style={styles.menuText}>Exit Room</Text>

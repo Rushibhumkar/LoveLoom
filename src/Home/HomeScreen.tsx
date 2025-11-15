@@ -26,6 +26,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSocket } from '../hooks/useSocket';
 import { getUserData } from '../api/userApi';
+import { useRoomConnection } from '../hooks/useRoomConnection';
 
 const HomeScreen = () => {
   const [roomCode, setRoomCode] = useState('');
@@ -85,7 +86,11 @@ const HomeScreen = () => {
 
       if (res?.success) {
         console.log('[ROOM] Room created successfully =>', res.roomId);
-        await AsyncStorage.setItem('roomId', res.roomId);
+        await AsyncStorage.multiSet([
+          ['roomId', res.roomId],
+          ['role', 'host'],
+        ]);
+
         console.log('[NAV] Navigating to ReadyToPlay (HOST waiting for GUEST)');
         navigation.navigate('ReadyToPlay', {
           roomId: res.roomId,
@@ -130,7 +135,11 @@ const HomeScreen = () => {
 
       if (res?.success) {
         console.log('[ROOM] Joined room successfully =>', roomCode.trim());
-        await AsyncStorage.setItem('roomId', roomCode.trim());
+        await AsyncStorage.multiSet([
+          ['roomId', roomCode.trim()],
+          ['role', 'guest'],
+        ]);
+
         console.log(
           '[NAV] Navigating to ReadyToPlay (GUEST joined, waiting for HOST)',
         );
@@ -150,6 +159,8 @@ const HomeScreen = () => {
       }
     });
   };
+
+  useRoomConnection('host', player?.userID || '');
 
   // 🔹 UI
   return (
@@ -178,7 +189,7 @@ const HomeScreen = () => {
                 <Feather name="menu" size={28} color="#fff" />
               </TouchableOpacity>
               <Text style={styles.logo}>
-                Cu<Text style={styles.logoAccent}>pid</Text>
+                Cupid<Text style={styles.logoAccent}>Flow</Text>
               </Text>
             </View>
 

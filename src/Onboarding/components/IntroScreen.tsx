@@ -30,7 +30,7 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ onNext }) => {
         >
           <View style={styles.overlay}>
             <Text style={styles.logo}>
-              Cu<Text style={styles.logoAccent}>pid</Text>
+              Cupid<Text style={styles.logoAccent}>Flow</Text>
             </Text>
             <View
               style={{

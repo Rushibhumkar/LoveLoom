@@ -10,14 +10,18 @@ import {
   Image,
   ToastAndroid,
   Alert,
+  StatusBar,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Clipboard from '@react-native-clipboard/clipboard';
 import ShareLib from 'react-native-share';
-import { useNavigation } from '@react-navigation/native';
+import { DrawerActions, useNavigation } from '@react-navigation/native';
 import { useSocket } from '../../hooks/useSocket';
 import MainContainer from '../../components/MainContainer';
 import { myConsole } from '../../utils/myConsole';
+import { useRoomConnection } from '../../hooks/useRoomConnection';
+import Feather from 'react-native-vector-icons/Feather';
+import { DrawerNavigationProp } from '@react-navigation/drawer';
 
 interface PlayerData {
   userID: string;
@@ -39,8 +43,10 @@ interface Props {
 
 const ReadyToPlay: React.FC<Props> = ({ route }) => {
   const { roomId, host, guest, role, waitingFor } = route.params;
+  // const drawerNav = useNavigation<DrawerNavigationProp<any>>();
   const navigation = useNavigation<any>();
   const { socket } = useSocket();
+  useRoomConnection(role, role === 'host' ? host.userID : guest.userID);
   console.log('routeparmsss', route.params);
   const [hostData, setHostData] = useState<PlayerData>(host);
   const [guestData, setGuestData] = useState<PlayerData>(guest);
@@ -192,33 +198,37 @@ const ReadyToPlay: React.FC<Props> = ({ route }) => {
     try {
       await ShareLib.open({
         title: 'Share Room ID',
-        message: `Join my Lovify room!\nRoom ID: ${roomId}`,
+        message: `${roomId}`,
       });
     } catch {
       ToastAndroid.show('Share cancelled.', ToastAndroid.SHORT);
     }
   };
 
-  // ------------------------------------------------------
-  // UI
-  // ------------------------------------------------------
+  console.log('Parent navigators:', navigation.getParent()?.getState()?.type);
+  console.log('Parentfff:', navigation);
   return (
     <MainContainer>
       <View style={styles.container}>
+        <TouchableOpacity
+          style={{
+            position: 'absolute',
+            left: 16,
+            // backgroundColor: 'red',
+            top: 12,
+          }}
+          onPress={() => {
+            navigation
+              .getParent('DrawerRoot')
+              ?.dispatch(DrawerActions.openDrawer());
+          }}
+        >
+          <Feather name="menu" size={28} color="#0b0e1eff" />
+        </TouchableOpacity>
+
+        <StatusBar barStyle={'dark-content'} backgroundColor={'#fefafc'} />
         <Text style={styles.title}>Are you ready to play?</Text>
         <Text style={styles.subtitle}>True fun begins with true love 💞</Text>
-
-        {role === 'host' && (
-          <View style={styles.roomRow}>
-            <Text style={styles.roomText}>Room ID: {roomId}</Text>
-            <TouchableOpacity onPress={handleCopy} style={styles.iconBtn}>
-              <Ionicons name="copy-outline" size={18} color="#101031" />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleShare} style={styles.iconBtn}>
-              <Ionicons name="share-social-outline" size={18} color="#101031" />
-            </TouchableOpacity>
-          </View>
-        )}
 
         <View style={styles.vsCard}>
           <View style={styles.player}>
@@ -250,6 +260,22 @@ const ReadyToPlay: React.FC<Props> = ({ route }) => {
           </View>
         </View>
 
+        {role === 'host' && (
+          <View style={styles.roomContainer}>
+            <Text style={styles.roomText}>Room ID: {roomId}</Text>
+
+            <TouchableOpacity onPress={handleCopy} style={styles.actionBtn}>
+              <Text style={styles.btnText}>Copy Code</Text>
+              <Ionicons name="copy-outline" size={18} color="#fff" />
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={handleShare} style={styles.actionBtn}>
+              <Text style={styles.btnText}>Share Code</Text>
+              <Ionicons name="share-social-outline" size={18} color="#fff" />
+            </TouchableOpacity>
+          </View>
+        )}
+
         <Text style={styles.waitText}>{waitingText}</Text>
       </View>
     </MainContainer>
@@ -280,30 +306,43 @@ const styles = StyleSheet.create({
     color: '#707070',
     marginBottom: 30,
   },
-  roomRow: {
-    flexDirection: 'row',
+  roomContainer: {
     alignItems: 'center',
     marginBottom: 25,
     backgroundColor: '#ffffff',
-    paddingVertical: 8,
-    paddingHorizontal: 15,
+    paddingVertical: 15,
+    paddingHorizontal: 40,
     borderRadius: 12,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 3,
   },
+
   roomText: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#101031',
+    fontWeight: '700',
+    marginBottom: 12,
+  },
+
+  actionBtn: {
+    flexDirection: 'row',
+    backgroundColor: '#a878c7ff',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    marginBottom: 10,
+    width: '100%',
+    gap: 12,
+  },
+
+  btnText: {
+    color: '#fff',
+    fontSize: 14,
     fontWeight: '600',
   },
-  iconBtn: {
-    marginLeft: 10,
-    backgroundColor: '#eee',
-    borderRadius: 8,
-    padding: 6,
-  },
+
   vsCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -316,6 +355,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 3,
     marginBottom: 40,
+    marginTop: 60,
   },
   player: { alignItems: 'center', marginHorizontal: 10 },
   avatar: {

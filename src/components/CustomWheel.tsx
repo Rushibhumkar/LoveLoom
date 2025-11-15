@@ -192,13 +192,17 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#5da3ffff',
-    paddingHorizontal: 20,
+    paddingHorizontal: 28,
     paddingVertical: 10,
-    borderRadius: 10,
+    borderRadius: 16,
     marginTop: 30,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
   },
   buttonText: {
-    color: '#101031',
+    color: '#ffffffff',
     fontWeight: '700',
   },
 });

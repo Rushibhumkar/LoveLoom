@@ -10,12 +10,16 @@ import {
   Alert,
   ScrollView,
   BackHandler,
+  Image,
+  StatusBar,
 } from 'react-native';
 import { useSocket } from '../../hooks/useSocket';
 import { useNavigation } from '@react-navigation/native';
 import { color } from '../../const/color';
 import { testUrl } from '../../api/axiosInstance';
 import MainContainer from '../../components/MainContainer';
+import { useRoomConnection } from '../../hooks/useRoomConnection';
+import { sizes } from '../../const';
 
 interface Question {
   question_id: string;
@@ -31,17 +35,16 @@ interface Props {
       name: string;
       categoryId: string;
       role: 'host' | 'guest';
+      selectedCategory?: string;
     };
   };
 }
 
 const QuizScreen: React.FC<Props> = ({ route }) => {
-  const { roomId, userID, name, categoryId, role } = route.params;
-  console.log('roomiddd', roomId);
-  console.log('ueriddd', userID);
-  console.log('nameee', name);
-  console.log('categoryidd', categoryId);
-  console.log('roleee', role);
+  const { roomId, userID, name, categoryId, role, selectedCategory } =
+    route.params;
+  useRoomConnection(role, userID);
+  console.log('selectedCategory', selectedCategory);
   const navigation = useNavigation<any>();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [index, setIndex] = useState(0);
@@ -67,10 +70,10 @@ const QuizScreen: React.FC<Props> = ({ route }) => {
       console.log('You finished:', p?.message);
     },
     both_finished: payload => {
-      // console.log(
-      //   '🎯 both_finished received from server =>',
-      //   JSON.stringify(payload, null, 2),
-      // );
+      console.log(
+        '🎯 both_finished received from server =>',
+        JSON.stringify(payload, null, 2),
+      );
       navigation.navigate('GuessScreen', {
         roomId,
         userID,
@@ -240,43 +243,120 @@ const QuizScreen: React.FC<Props> = ({ route }) => {
   return (
     <MainContainer>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.progress}>
-          🧠 You: {myProgress}/{totalQuestions} | 💞 Partner: {partnerProgress}/
-          {totalQuestions}
-        </Text>
-        <Text style={styles.question}>{currentQ.question_text}</Text>
-        {JSON.parse(currentQ.question_options).map((opt: string, i: number) => (
-          <TouchableOpacity
-            key={i}
-            style={[
-              styles.option,
-              selectedOption === opt && {
-                backgroundColor: '#FF4F72',
-                borderColor: '#FF4F72',
-              },
-            ]}
-            onPress={() => {
-              setSelectedOption(opt);
-              handleAnswer(currentQ, opt);
+        <StatusBar backgroundColor={'#1b2038'} barStyle={'light-content'} />
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+            // backgroundColor: 'red',
+          }}
+        >
+          <View>
+            <Text
+              style={{ color: '#c3c3c3ff', fontSize: 16, fontWeight: '600' }}
+            >
+              {myProgress}/{totalQuestions}
+            </Text>
+            <Text
+              style={{ color: '#c3c3c3ff', fontSize: 16, fontWeight: '600' }}
+            >
+              You
+            </Text>
+          </View>
+          <Text
+            style={{
+              color: '#FF4F72',
+              fontWeight: '600',
+              fontSize: 22,
+              width: '60%',
+              textAlign: 'center',
             }}
           >
-            <Text
-              style={[
-                styles.optText,
-                selectedOption === opt && { color: '#fff' },
-              ]}
-            >
-              {opt}
-            </Text>
-          </TouchableOpacity>
-        ))}
-
-        {finished && (
-          <Text style={styles.waitText}>
-            🎉 You've answered everything! ⏳ Waiting for your partner to
-            finish... 🤝
+            {selectedCategory || ''}
           </Text>
-        )}
+          <View>
+            <Text
+              style={{
+                color: '#c3c3c3ff',
+                fontSize: 16,
+                fontWeight: '600',
+                textAlign: 'right',
+              }}
+            >
+              {partnerProgress}/{totalQuestions}
+            </Text>
+            <Text
+              style={{ color: '#c3c3c3ff', fontSize: 16, fontWeight: '600' }}
+            >
+              Partner
+            </Text>
+          </View>
+        </View>
+
+        <View
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            width: sizes.width,
+          }}
+        >
+          <Image
+            source={require('../../assets/icons/hearts.jpg')}
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              right: 0,
+              zIndex: 40,
+              height: 120,
+              width: 120,
+            }}
+          />
+          <Text style={styles.question}>{currentQ.question_text}</Text>
+          <View
+            style={{
+              backgroundColor: '#f5f5f5',
+              borderTopLeftRadius: 32,
+              borderTopRightRadius: 32,
+              paddingHorizontal: 24,
+              paddingVertical: finished ? sizes.height / 8 : sizes.height / 6,
+            }}
+          >
+            {JSON.parse(currentQ.question_options).map(
+              (opt: string, i: number) => (
+                <TouchableOpacity
+                  key={i}
+                  style={[
+                    styles.option,
+                    selectedOption === opt && {
+                      backgroundColor: '#f79aadff',
+                      borderColor: '#f8bfcaff',
+                    },
+                  ]}
+                  onPress={() => {
+                    setSelectedOption(opt);
+                    handleAnswer(currentQ, opt);
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.optText,
+                      selectedOption === opt && { color: '#fff' },
+                    ]}
+                  >
+                    {opt}
+                  </Text>
+                </TouchableOpacity>
+              ),
+            )}
+            {finished && (
+              <Text style={styles.waitText}>
+                🎉 You've answered everything! ⏳ Waiting for your partner to
+                finish... 🤝
+              </Text>
+            )}
+          </View>
+        </View>
       </ScrollView>
     </MainContainer>
   );
@@ -288,7 +368,7 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#1b2038',
   },
   progress: {
     fontSize: 15,
@@ -303,23 +383,24 @@ const styles = StyleSheet.create({
     color: '#FF4F72',
     fontSize: 15,
     letterSpacing: 0.4,
+    zIndex: 80,
   },
 
   question: {
     marginTop: 40,
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: '700',
-    color: '#101031',
-    textAlign: 'center',
+    color: '#fff',
     marginBottom: 25,
     lineHeight: 28,
+    paddingHorizontal: 22,
   },
 
   option: {
     backgroundColor: '#ffffff',
     borderWidth: 2,
-    borderColor: '#FF4F72',
-    borderRadius: 14,
+    borderColor: '#f8a3b4ff',
+    borderRadius: 22,
     paddingVertical: 16,
     paddingHorizontal: 14,
     marginBottom: 14,

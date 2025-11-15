@@ -61,10 +61,10 @@ const UsernameLoginBottom = ({ onClose, onLogin }: any) => {
         initialValues={{
           // userEmail: '',
           // userPassword: '',
-          // userEmail: 'testing@dev.com',
-          // userPassword: 'testing@dev.com',
-          userEmail: 'rushibhumkar12@gmail.com',
-          userPassword: '123456789',
+          userEmail: 'testing@dev.com',
+          userPassword: 'testing@dev.com',
+          // userEmail: 'rushibhumkar12@gmail.com',
+          // userPassword: '123456789',
         }}
         validationSchema={schema}
         onSubmit={handleSubmit}

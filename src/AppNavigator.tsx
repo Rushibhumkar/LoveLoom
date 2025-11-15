@@ -21,6 +21,7 @@ const Drawer = createDrawerNavigator();
 const DrawerNavigator = ({ onLogout }: { onLogout: () => void }) => {
   return (
     <Drawer.Navigator
+      id={'DrawerRoot' as never}
       screenOptions={{
         headerShown: false,
         drawerType: 'slide',
@@ -30,6 +31,11 @@ const DrawerNavigator = ({ onLogout }: { onLogout: () => void }) => {
       drawerContent={props => <DrawerContent {...props} onLogout={onLogout} />}
     >
       <Drawer.Screen name="HomeScreen" component={HomeScreen} />
+      <Drawer.Screen name="ReadyToPlay" component={ReadyToPlay} />
+      <Drawer.Screen name="WheelScreen" component={WheelScreen} />
+      <Drawer.Screen name="QuizScreen" component={QuizScreen} />
+      <Drawer.Screen name="GuessScreen" component={GuessScreen} />
+      <Drawer.Screen name="ResultScreen" component={ResultScreen} />
       <Drawer.Screen name="SettingsScreen" component={SettingsScreen} />
       <Drawer.Screen name="AboutUs" component={AboutUs} />
       <Drawer.Screen name="ContactUs" component={ContactUs} />
@@ -57,11 +63,11 @@ const AppNavigator = ({
             </Stack.Screen>
 
             {/* Added Game Flow Screens */}
-            <Stack.Screen name="ReadyToPlay" component={ReadyToPlay} />
+            {/* <Stack.Screen name="ReadyToPlay" component={ReadyToPlay} />
             <Stack.Screen name="WheelScreen" component={WheelScreen} />
             <Stack.Screen name="QuizScreen" component={QuizScreen} />
             <Stack.Screen name="GuessScreen" component={GuessScreen} />
-            <Stack.Screen name="ResultScreen" component={ResultScreen} />
+            <Stack.Screen name="ResultScreen" component={ResultScreen} /> */}
           </>
         ) : (
           <Stack.Screen name="Onboarding">

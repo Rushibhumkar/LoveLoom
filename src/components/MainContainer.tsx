@@ -1,6 +1,3 @@
-// ------------------------------------------------------
-// MainContainer.tsx — Safe Area Wrapper Component
-// ------------------------------------------------------
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import {
@@ -22,7 +19,6 @@ const MainContainer: React.FC<Props> = ({ children }) => {
       style={[
         styles.container,
         {
-          paddingTop: insets.top,
           paddingBottom: insets.bottom,
           paddingLeft: insets.left,
           paddingRight: insets.right,
@@ -37,12 +33,9 @@ const MainContainer: React.FC<Props> = ({ children }) => {
 
 export default MainContainer;
 
-// ------------------------------------------------------
-// Styles
-// ------------------------------------------------------
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000', // Default background color
+    backgroundColor: '#000',
   },
 });

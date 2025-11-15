@@ -7,6 +7,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSocket } from '../../hooks/useSocket';
 import { myConsole } from '../../utils/myConsole';
+import { useRoomConnection } from '../../hooks/useRoomConnection';
 
 interface ResultData {
   hostName: string;
@@ -17,12 +18,13 @@ interface ResultData {
 
 const ResultScreen: React.FC = () => {
   const route = useRoute<any>();
+  const { roomId, userID, name, role, categoryId } = route.params || {};
+
   const result: ResultData = route.params?.result;
   const navigation = useNavigation<any>();
   const { socket, emit } = useSocket();
+  useRoomConnection(role, userID);
   myConsole('route.params', route.params);
-
-  const { roomId, userID, name, role, categoryId } = route.params || {};
 
   useEffect(() => {
     console.log('🏁 Final result received on ResultScreen =>', result);

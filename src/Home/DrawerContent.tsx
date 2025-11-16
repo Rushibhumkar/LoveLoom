@@ -12,6 +12,7 @@ import { Alert } from 'react-native';
 import CustomAvatar from '../components/CustomAvatar';
 import { getUserData, useUserData } from '../api/userApi';
 import { myConsole } from '../utils/myConsole';
+import { useTranslation } from 'react-i18next';
 
 // Drawer route types
 type DrawerParamList = {
@@ -31,6 +32,8 @@ interface Props {
 }
 
 const DrawerContent: React.FC<Props> = ({ onLogout }) => {
+  const { t } = useTranslation();
+
   // ✅ correct type for drawer navigation
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { data: user, loading, error, refetch } = useUserData();
@@ -64,7 +67,7 @@ const DrawerContent: React.FC<Props> = ({ onLogout }) => {
         // }
       >
         <MaterialIcons name="workspace-premium" size={20} color="#FF4F72" />
-        <Text style={styles.menuText}>Premium</Text>
+        <Text style={styles.menuText}>{t('premium')}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -74,7 +77,7 @@ const DrawerContent: React.FC<Props> = ({ onLogout }) => {
         // }
       >
         <MaterialIcons name="history" size={20} color="#FF4F72" />
-        <Text style={styles.menuText}>History</Text>
+        <Text style={styles.menuText}>{t('history')}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -84,7 +87,7 @@ const DrawerContent: React.FC<Props> = ({ onLogout }) => {
         // }
       >
         <MaterialIcons name="list-alt" size={20} color="#FF4F72" />
-        <Text style={styles.menuText}>Profile</Text>
+        <Text style={styles.menuText}>{t('profile')}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -94,7 +97,7 @@ const DrawerContent: React.FC<Props> = ({ onLogout }) => {
         }
       >
         <Feather name="settings" size={20} color="#FF4F72" />
-        <Text style={styles.menuText}>Settings</Text>
+        <Text style={styles.menuText}>{t('settings')}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -102,7 +105,7 @@ const DrawerContent: React.FC<Props> = ({ onLogout }) => {
         onPress={() => navigation.navigate('Home', { screen: 'AboutUs' })}
       >
         <Feather name="info" size={20} color="#FF4F72" />
-        <Text style={styles.menuText}>About us</Text>
+        <Text style={styles.menuText}>{t('aboutUs')}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -110,7 +113,7 @@ const DrawerContent: React.FC<Props> = ({ onLogout }) => {
         onPress={() => navigation.navigate('Home', { screen: 'ContactUs' })}
       >
         <MaterialIcons name="mail-outline" size={20} color="#FF4F72" />
-        <Text style={styles.menuText}>Contact us</Text>
+        <Text style={styles.menuText}>{t('contactUs')}</Text>
       </TouchableOpacity>
 
       <View style={styles.dividerLight} />
@@ -119,12 +122,12 @@ const DrawerContent: React.FC<Props> = ({ onLogout }) => {
         style={styles.menuItem}
         onPress={async () => {
           Alert.alert(
-            'Leave Room',
-            'Are you sure you want to leave the room?',
+            t('leaveRoomTitle'),
+            t('leaveRoomConfirmMsg'),
             [
-              { text: 'Cancel', style: 'cancel' },
+              { text: t('cancelButton'), style: 'cancel' },
               {
-                text: 'Yes',
+                text: t('yesButton'),
                 style: 'destructive',
                 onPress: async () => {
                   await AsyncStorage.removeItem('roomId'); // ✅ clear saved room
@@ -140,19 +143,19 @@ const DrawerContent: React.FC<Props> = ({ onLogout }) => {
         }}
       >
         <Ionicons name="exit-outline" size={20} color="#FF4F72" />
-        <Text style={styles.menuText}>Exit Room</Text>
+        <Text style={styles.menuText}>{t('exitRoom')}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.menuItem}
         onPress={() => {
           Alert.alert(
-            'Logout',
-            'Are you sure you want to logout?',
+            t('logoutTitle'),
+            t('logoutConfirmMsg'),
             [
-              { text: 'Cancel', style: 'cancel' },
+              { text: t('cancelButton'), style: 'cancel' },
               {
-                text: 'Logout',
+                text: t('logout'),
                 style: 'destructive',
                 onPress: async () => {
                   try {
@@ -170,11 +173,11 @@ const DrawerContent: React.FC<Props> = ({ onLogout }) => {
         }}
       >
         <AntDesign name="logout" size={20} color="#FF4F72" />
-        <Text style={[styles.menuText, { color: '#444' }]}>Logout</Text>
+        <Text style={[styles.menuText, { color: '#444' }]}>{t('logout')}</Text>
       </TouchableOpacity>
 
       <View style={styles.footer}>
-        <Text style={styles.versionText}>Version: 9.0.2</Text>
+        <Text style={styles.versionText}>{t('versionLabel')} 9.0.2</Text>
       </View>
     </SafeAreaView>
   );

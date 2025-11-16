@@ -8,6 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSocket } from '../../hooks/useSocket';
 import { myConsole } from '../../utils/myConsole';
 import { useRoomConnection } from '../../hooks/useRoomConnection';
+import { useTranslation } from 'react-i18next';
 
 interface ResultData {
   hostName: string;
@@ -17,6 +18,7 @@ interface ResultData {
 }
 
 const ResultScreen: React.FC = () => {
+  const { t } = useTranslation();
   const route = useRoute<any>();
   const { roomId, userID, name, role, categoryId } = route.params || {};
 
@@ -32,7 +34,7 @@ const ResultScreen: React.FC = () => {
 
   const handlePlayAgain = () => {
     if (!roomId) {
-      Alert.alert('Room not found', 'Unable to restart without room ID.');
+      Alert.alert(t('roomNotFoundTitle'), t('roomNotFoundMsg'));
       return;
     }
 
@@ -41,7 +43,7 @@ const ResultScreen: React.FC = () => {
       console.log('[ACK] restart_game =>', res);
       if (res?.success) {
         if (route.params.role === 'host') {
-          Alert.alert('Game restarted!', 'Spinning wheel is ready again.');
+          Alert.alert(t('gameRestartedTitle'), t('gameRestartedMsg'));
         }
 
         navigation.reset({
@@ -63,7 +65,7 @@ const ResultScreen: React.FC = () => {
           ],
         });
       } else {
-        Alert.alert('Failed to restart', res?.message || 'Please try again.');
+        Alert.alert(t('restartFailedTitle'), res?.message || t('tryAgain'));
       }
     });
   };
@@ -78,16 +80,16 @@ const ResultScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>🎯 Final Scores</Text>
+      <Text style={styles.title}>🎯 {t('finalScores')}</Text>
 
       {/* Host Card */}
       <View style={styles.card}>
         <Text style={styles.nameText}>
-          <Text style={styles.roleText}>HOST: </Text>
+          <Text style={styles.roleText}>{t('hostLabel')} </Text>
           <Text style={styles.highlight}>{result.hostName}</Text>
         </Text>
         <View style={styles.scoreContainer}>
-          <Text style={styles.scoreLabel}>SCORE</Text>
+          <Text style={styles.scoreLabel}>{t('scoreLabel')}</Text>
           <Text style={styles.scoreValue}>{result.hostScore}</Text>
         </View>
       </View>
@@ -95,17 +97,17 @@ const ResultScreen: React.FC = () => {
       {/* Guest Card */}
       <View style={styles.card}>
         <Text style={styles.nameText}>
-          <Text style={styles.roleText}>GUEST: </Text>
+          <Text style={styles.roleText}>{t('guestLabel')} </Text>
           <Text style={styles.highlight}>{result.guestName}</Text>
         </Text>
         <View style={styles.scoreContainer}>
-          <Text style={styles.scoreLabel}>SCORE</Text>
+          <Text style={styles.scoreLabel}>{t('scoreLabel')}</Text>
           <Text style={styles.scoreValue}>{result.guestScore}</Text>
         </View>
       </View>
 
       <TouchableOpacity style={styles.playAgainBtn} onPress={handlePlayAgain}>
-        <Text style={styles.playAgainText}>🔁 Play Again</Text>
+        <Text style={styles.playAgainText}>🔁 {t('playAgain')}</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );

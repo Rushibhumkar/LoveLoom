@@ -11,8 +11,11 @@ import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
 const SettingsScreen = () => {
+  const { t } = useTranslation();
+
   const navigation = useNavigation();
 
   const handleDeleteAccount = () => {
@@ -39,7 +42,7 @@ const SettingsScreen = () => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Settings</Text>
+        <Text style={styles.headerTitle}>{t('settings')}</Text>
       </View>
 
       {/* Delete Account Option */}
@@ -54,7 +57,7 @@ const SettingsScreen = () => {
             size={24}
             color="#FF4F72"
           />
-          <Text style={styles.optionText}>Delete Account</Text>
+          <Text style={styles.optionText}>{t('deleteAccount')}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

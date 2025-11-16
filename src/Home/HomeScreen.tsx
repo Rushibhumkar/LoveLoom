@@ -27,8 +27,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSocket } from '../hooks/useSocket';
 import { getUserData } from '../api/userApi';
 import { useRoomConnection } from '../hooks/useRoomConnection';
+import { useTranslation } from 'react-i18next';
 
 const HomeScreen = () => {
+  const { t } = useTranslation();
   const [roomCode, setRoomCode] = useState('');
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation<DrawerNavigationProp<any>>();
@@ -202,11 +204,11 @@ const HomeScreen = () => {
               style={styles.image}
             />
 
-            <Text style={styles.title}>Connect with your Partner</Text>
+            <Text style={styles.title}>{t('connectWithPartner')}</Text>
 
             {/* Actions */}
             <View style={styles.section}>
-              <Text style={styles.subText}>*To Generate Room ID</Text>
+              <Text style={styles.subText}>{t('generateRoomHint')}</Text>
 
               <TouchableOpacity
                 style={[styles.createRoomBtn, loading && { opacity: 0.6 }]}
@@ -215,13 +217,13 @@ const HomeScreen = () => {
                 disabled={loading}
               >
                 <Text style={styles.createRoomText}>
-                  {loading ? 'Creating...' : 'Create Room'}
+                  {loading ? t('creating') : t('createRoom')}
                 </Text>
               </TouchableOpacity>
 
               <View style={styles.orContainer}>
                 <View style={styles.line} />
-                <Text style={styles.orText}>OR</Text>
+                <Text style={styles.orText}>{t('or')}</Text>
                 <View style={styles.line} />
               </View>
 
@@ -231,7 +233,7 @@ const HomeScreen = () => {
                   // console.log('[INPUT] Room code changed =>', text);
                   setRoomCode(text);
                 }}
-                placeholder="XXXXX"
+                placeholder={t('roomCodePlaceholder')}
                 placeholderTextColor="#A5A5B5"
                 style={styles.input}
                 textAlign="center"
@@ -244,11 +246,11 @@ const HomeScreen = () => {
                 disabled={loading}
               >
                 <Text style={styles.joinRoomText}>
-                  {loading ? 'Joining...' : 'Join Room'}
+                  {loading ? t('joining') : t('joinRoom')}
                 </Text>
               </TouchableOpacity>
 
-              <Text style={styles.bottomText}>Enter Partner's Room ID</Text>
+              <Text style={styles.bottomText}>{t('enterPartnerRoomID')}</Text>
             </View>
           </View>
         </ScrollView>
@@ -259,9 +261,6 @@ const HomeScreen = () => {
 
 export default HomeScreen;
 
-// --------------------------------------------------------
-// Styles
-// --------------------------------------------------------
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#101031' },
   container: { flex: 1, alignItems: 'center' },

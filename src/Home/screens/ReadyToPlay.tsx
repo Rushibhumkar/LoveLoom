@@ -22,6 +22,7 @@ import { myConsole } from '../../utils/myConsole';
 import { useRoomConnection } from '../../hooks/useRoomConnection';
 import Feather from 'react-native-vector-icons/Feather';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
+import { useTranslation } from 'react-i18next';
 
 interface PlayerData {
   userID: string;
@@ -45,14 +46,16 @@ const ReadyToPlay: React.FC<Props> = ({ route }) => {
   const { roomId, host, guest, role, waitingFor } = route.params;
   // const drawerNav = useNavigation<DrawerNavigationProp<any>>();
   const navigation = useNavigation<any>();
+  const { t } = useTranslation();
   const { socket } = useSocket();
   useRoomConnection(role, role === 'host' ? host.userID : guest.userID);
   console.log('routeparmsss', route.params);
   const [hostData, setHostData] = useState<PlayerData>(host);
   const [guestData, setGuestData] = useState<PlayerData>(guest);
   const [waitingText, setWaitingText] = useState(
-    role === 'host' ? 'Waiting for guest to join...' : 'Waiting for host...',
+    role === 'host' ? t('waitingForGuest') : t('waitingForHost'),
   );
+
   myConsole('waitingForffff', waitingFor);
   myConsole('waitingtesxdttt', waitingText);
   const hasNavigated = useRef(false);
@@ -78,7 +81,7 @@ const ReadyToPlay: React.FC<Props> = ({ route }) => {
           avatar: data?.userAvatar || null,
         };
         setGuestData(joinedGuest);
-        setWaitingText('Guest joined! Starting game...');
+        setWaitingText(t('guestJoinedStart'));
         hasNavigated.current = true;
 
         navigation.reset({
@@ -141,13 +144,13 @@ const ReadyToPlay: React.FC<Props> = ({ route }) => {
     });
 
     socket.on('guest_left', () => {
-      Alert.alert('Guest left the room.');
-      setWaitingText('Guest left. Waiting for another guest...');
+      Alert.alert(t('guestLeftTitle'));
+      setWaitingText(t('guestLeftWaiting'));
       hasNavigated.current = false;
     });
 
     socket.on('host_left', () => {
-      Alert.alert('Host left. Room closed.');
+      Alert.alert(t('hostLeftTitle'));
       navigation.goBack();
       hasNavigated.current = false;
     });
@@ -227,8 +230,8 @@ const ReadyToPlay: React.FC<Props> = ({ route }) => {
         </TouchableOpacity>
 
         <StatusBar barStyle={'dark-content'} backgroundColor={'#fefafc'} />
-        <Text style={styles.title}>Are you ready to play?</Text>
-        <Text style={styles.subtitle}>True fun begins with true love 💞</Text>
+        <Text style={styles.title}>{t('readyToPlayTitle')}</Text>
+        <Text style={styles.subtitle}>{t('readyToPlaySubtitle')}</Text>
 
         <View style={styles.vsCard}>
           <View style={styles.player}>
@@ -240,10 +243,11 @@ const ReadyToPlay: React.FC<Props> = ({ route }) => {
               }}
               style={styles.avatar}
             />
-            <Text style={styles.name}>{hostData.name || 'Host'}</Text>
+
+            <Text style={styles.name}>{hostData.name || t('host')}</Text>
           </View>
 
-          <Text style={styles.vsText}>VS</Text>
+          <Text style={styles.vsText}>{t('vs')}</Text>
 
           <View style={styles.player}>
             <Image
@@ -255,22 +259,24 @@ const ReadyToPlay: React.FC<Props> = ({ route }) => {
               style={styles.avatar}
             />
             <Text style={styles.name}>
-              {waitingFor === 'guest' ? 'Guest' : ''}
+              {waitingFor === 'guest' ? t('guest') : ''}
             </Text>
           </View>
         </View>
 
         {role === 'host' && (
           <View style={styles.roomContainer}>
-            <Text style={styles.roomText}>Room ID: {roomId}</Text>
+            <Text style={styles.roomText}>
+              {t('roomIdLabel')}: {roomId}
+            </Text>
 
             <TouchableOpacity onPress={handleCopy} style={styles.actionBtn}>
-              <Text style={styles.btnText}>Copy Code</Text>
+              <Text style={styles.btnText}>{t('copyCode')}</Text>
               <Ionicons name="copy-outline" size={18} color="#fff" />
             </TouchableOpacity>
 
             <TouchableOpacity onPress={handleShare} style={styles.actionBtn}>
-              <Text style={styles.btnText}>Share Code</Text>
+              <Text style={styles.btnText}>{t('shareCode')}</Text>
               <Ionicons name="share-social-outline" size={18} color="#fff" />
             </TouchableOpacity>
           </View>

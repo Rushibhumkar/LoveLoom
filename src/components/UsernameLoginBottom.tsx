@@ -12,6 +12,7 @@ import * as Yup from 'yup';
 import CustomTextInput from './CustomTextInput';
 import { API_AXIOS } from '../api/axiosInstance';
 import { storeData, storeDataJson } from '../hooks/useAsyncStorage';
+import { useTranslation } from 'react-i18next';
 
 const schema = Yup.object({
   userEmail: Yup.string().email('Invalid Email').required('Email is required'),
@@ -21,6 +22,7 @@ const schema = Yup.object({
 });
 
 const UsernameLoginBottom = ({ onClose, onLogin }: any) => {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -56,15 +58,14 @@ const UsernameLoginBottom = ({ onClose, onLogin }: any) => {
 
   return (
     <View style={styles.sheet}>
-      <Text style={styles.title}>Login</Text>
+      <Text style={styles.title}>{t('loginTitle')}</Text>
+
       <Formik
         initialValues={{
-          // userEmail: '',
-          // userPassword: '',
-          userEmail: 'testing@dev.com',
-          userPassword: 'testing@dev.com',
-          // userEmail: 'rushibhumkar12@gmail.com',
-          // userPassword: '123456789',
+          userEmail: 'rushibhumkar12@gmail.com',
+          userPassword: '123456789',
+          // userEmail: 'testing@dev.com',
+          // userPassword: 'testing@dev.com',
         }}
         validationSchema={schema}
         onSubmit={handleSubmit}
@@ -72,18 +73,19 @@ const UsernameLoginBottom = ({ onClose, onLogin }: any) => {
         {formik => (
           <>
             <CustomTextInput
-              label="Email"
+              label={t('emailLabel')}
               name="userEmail"
               formik={formik}
-              placeholder="Enter Email"
+              placeholder={t('emailPlaceholder')}
             />
             <CustomTextInput
-              label="Password"
+              label={t('passwordLabel')}
               name="userPassword"
               formik={formik}
               secureTextEntry
-              placeholder="Enter Password"
+              placeholder={t('passwordPlaceholder')}
             />
+
             <TouchableOpacity
               style={styles.loginBtn}
               onPress={() => {
@@ -95,7 +97,7 @@ const UsernameLoginBottom = ({ onClose, onLogin }: any) => {
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.loginText}>Login</Text>
+                <Text style={styles.loginText}>{t('loginButton')}</Text>
               )}
             </TouchableOpacity>
           </>
@@ -103,7 +105,7 @@ const UsernameLoginBottom = ({ onClose, onLogin }: any) => {
       </Formik>
 
       <TouchableOpacity onPress={onClose}>
-        <Text style={styles.cancelText}>Cancel</Text>
+        <Text style={styles.cancelText}>{t('cancelButton')}</Text>
       </TouchableOpacity>
     </View>
   );

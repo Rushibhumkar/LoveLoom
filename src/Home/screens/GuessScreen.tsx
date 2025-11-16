@@ -18,6 +18,7 @@ import { color } from '../../const/color';
 import { testUrl } from '../../api/axiosInstance';
 import { useRoomConnection } from '../../hooks/useRoomConnection';
 import MainContainer from '../../components/MainContainer';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   route: {
@@ -41,6 +42,7 @@ interface Props {
 const { width } = Dimensions.get('window');
 
 const GuessScreen: React.FC<Props> = ({ route }) => {
+  const { t } = useTranslation();
   const { roomId, userID, payload, categoryId, role } = route.params;
   useRoomConnection(role, userID);
 
@@ -132,19 +134,41 @@ const GuessScreen: React.FC<Props> = ({ route }) => {
   };
 
   const handleGuessSelect = (questionId: string, option: string) => {
-    console.log(`[ACTION] Guess selected => QID=${questionId} | OPT=${option}`);
+    // Prevent reselection
+    if (lockedQuestions.includes(questionId)) return;
+
+    const partnerAns = uniquePartnerAnswers.find(
+      a => a.question_id === questionId,
+    );
+    let correctAnswer = '';
+    try {
+      correctAnswer = JSON.parse(partnerAns?.answer || '[]')[0];
+    } catch {
+      correctAnswer = partnerAns?.answer;
+    }
+
+    const isCorrect = option === correctAnswer;
+
     setGuesses(prev => {
       const updated = prev.filter(g => g.question_id !== questionId);
-      return [...updated, { question_id: questionId, guessedAnswer: option }];
+      return [
+        ...updated,
+        {
+          question_id: questionId,
+          guessedAnswer: option,
+          isCorrect,
+          correctAnswer,
+        },
+      ];
     });
+
+    // Lock question after first selection
+    setLockedQuestions(prev => [...prev, questionId]);
   };
 
   const handleSubmit = () => {
     if (guesses.length < uniquePartnerAnswers.length) {
-      Alert.alert(
-        'Incomplete',
-        'Please answer all questions before submitting.',
-      );
+      Alert.alert(t('incompleteTitle'), t('incompleteMessage'));
       return;
     }
 
@@ -178,7 +202,7 @@ const GuessScreen: React.FC<Props> = ({ route }) => {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color={color.primary} />
-        <Text style={styles.loadingText}>Loading questions...</Text>
+        <Text style={styles.loadingText}>{t('loadingQuestions')}</Text>
       </View>
     );
   }
@@ -186,9 +210,7 @@ const GuessScreen: React.FC<Props> = ({ route }) => {
   if (uniquePartnerAnswers.length === 0) {
     return (
       <View style={styles.center}>
-        <Text style={styles.noAnswersText}>
-          ⚠️ No partner answers received yet.
-        </Text>
+        <Text style={styles.noAnswersText}>⚠️ {t('noPartnerAnswers')}</Text>
       </View>
     );
   }
@@ -229,9 +251,12 @@ const GuessScreen: React.FC<Props> = ({ route }) => {
         {/* Header */}
 
         <View style={styles.header}>
-          <Text style={styles.title}>Guess Your Partner's Answers</Text>
+          <Text style={styles.title}>{t('guessYourPartnersAnswers')}</Text>
           <Text style={styles.subtitle}>
-            Question {currentIndex + 1} of {uniquePartnerAnswers.length}
+            {t('questionProgress', {
+              current: currentIndex + 1,
+              total: uniquePartnerAnswers.length,
+            })}
           </Text>
 
           {/* Progress Bar */}
@@ -245,7 +270,10 @@ const GuessScreen: React.FC<Props> = ({ route }) => {
         {/* Question Card */}
         <View style={styles.card}>
           <View style={styles.questionHeader}>
-            <Text style={styles.questionNumber}>Q{currentIndex + 1}</Text>
+            <Text style={styles.questionNumber}>
+              {t('questionLabel', { number: currentIndex + 1 })}
+            </Text>
+
             <View style={styles.questionIndicator}>
               {uniquePartnerAnswers.map((_, index) => (
                 <View
@@ -261,10 +289,10 @@ const GuessScreen: React.FC<Props> = ({ route }) => {
           </View>
 
           <Text style={styles.questionText}>
-            {question.question_text || 'Question not found'}
+            {question.question_text || t('questionNotFound')}
           </Text>
 
-          <Text style={styles.instruction}>What did your partner answer?</Text>
+          <Text style={styles.instruction}>{t('whatDidPartnerAnswer')}</Text>
 
           {/* Options */}
           <View style={styles.optionsContainer}>
@@ -280,23 +308,48 @@ const GuessScreen: React.FC<Props> = ({ route }) => {
                         option,
                       )
                     }
-                    style={[styles.option, isSelected && styles.optionSelected]}
+                    style={[
+                      styles.option,
+                      currentGuess?.guessedAnswer === option && {
+                        backgroundColor: currentGuess.isCorrect
+                          ? '#22c55e' // green
+                          : '#ef4444', // red
+                        borderColor: currentGuess.isCorrect
+                          ? '#16a34a'
+                          : '#dc2626',
+                      },
+                      currentGuess &&
+                        option === currentGuess.correctAnswer &&
+                        !currentGuess.isCorrect && {
+                          backgroundColor: '#22c55e', // green for correct one
+                          borderColor: '#16a34a',
+                        },
+                    ]}
+                    disabled={lockedQuestions.includes(
+                      currentPartnerAnswer.question_id,
+                    )}
                   >
                     <View style={styles.optionContent}>
                       <View
                         style={[
                           styles.optionIndicator,
-                          isSelected && styles.optionIndicatorSelected,
+                          (isSelected ||
+                            (currentGuess &&
+                              option === currentGuess.correctAnswer)) && {
+                            borderColor: '#FFFFFF',
+                            backgroundColor: '#FFFFFF',
+                          },
                         ]}
-                      >
-                        {isSelected && (
-                          <View style={styles.optionIndicatorInner} />
-                        )}
-                      </View>
+                      />
                       <Text
                         style={[
                           styles.optionText,
-                          isSelected && styles.optionTextSelected,
+                          (isSelected ||
+                            (currentGuess &&
+                              option === currentGuess.correctAnswer)) && {
+                            color: '#FFFFFF',
+                            fontWeight: '600',
+                          },
                         ]}
                       >
                         {option}
@@ -307,7 +360,7 @@ const GuessScreen: React.FC<Props> = ({ route }) => {
               })
             ) : (
               <Text style={styles.noOptionsText}>
-                No options available for this question
+                {t('noOptionsAvailable')}
               </Text>
             )}
           </View>
@@ -353,7 +406,7 @@ const GuessScreen: React.FC<Props> = ({ route }) => {
                   !currentGuess && styles.navButtonTextDisabled,
                 ]}
               >
-                Next
+                {t('next')}
               </Text>
             </TouchableOpacity>
           ) : (
@@ -373,7 +426,7 @@ const GuessScreen: React.FC<Props> = ({ route }) => {
                   (!currentGuess || submitted) && styles.navButtonTextDisabled,
                 ]}
               >
-                {submitted ? 'Waiting for partner...' : 'Submit All'}
+                {submitted ? t('waitingForPartner') : t('submitAll')}
               </Text>
             </TouchableOpacity>
           )}

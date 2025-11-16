@@ -5,6 +5,7 @@ import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import AppNavigator from './src/AppNavigator';
 import { getData } from './src/hooks/useAsyncStorage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import i18n from './src/i18n';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
@@ -15,6 +16,15 @@ const App = () => {
       offlineAccess: false,
     });
     checkLoginStatus();
+  }, []);
+  const [langReady, setLangReady] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const savedLang = await getData('appLanguage');
+      if (savedLang) await i18n.changeLanguage(savedLang);
+      setLangReady(true);
+    })();
   }, []);
 
   const checkLoginStatus = async () => {
@@ -43,7 +53,7 @@ const App = () => {
     setIsLoggedIn(false);
   };
 
-  if (isLoggedIn === null) {
+  if (isLoggedIn === null || !langReady) {
     return (
       <View
         style={{

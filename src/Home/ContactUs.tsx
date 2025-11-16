@@ -10,8 +10,10 @@ import {
 import Feather from 'react-native-vector-icons/Feather';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
 const ContactUs = () => {
+  const { t } = useTranslation();
   const navigation = useNavigation();
 
   const handleEmailPress = () => {
@@ -27,19 +29,14 @@ const ContactUs = () => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Contact Us</Text>
+        <Text style={styles.headerTitle}>{t('contactUsTitle')}</Text>
       </View>
 
       {/* Content */}
       <View style={styles.body}>
-        <Text style={styles.heading}>
-          Get in touch if you{'\n'}need assistance.
-        </Text>
+        <Text style={styles.heading}>{t('contactHeading')}</Text>
 
-        <Text style={styles.subText}>
-          If you have any questions, concerns, feedback, please don't hesitate
-          to get in touch with us. Our support team is available to assist you.
-        </Text>
+        <Text style={styles.subText}>{t('contactSubText')}</Text>
 
         <View style={styles.card}>
           <Feather
@@ -55,7 +52,7 @@ const ContactUs = () => {
             onPress={handleEmailPress}
             activeOpacity={0.8}
           >
-            <Text style={styles.emailBtnText}>Send Email</Text>
+            <Text style={styles.emailBtnText}>{t('sendEmail')}</Text>
           </TouchableOpacity>
         </View>
       </View>

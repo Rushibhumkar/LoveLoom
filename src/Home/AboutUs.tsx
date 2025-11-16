@@ -10,8 +10,10 @@ import {
 import Feather from 'react-native-vector-icons/Feather';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
 const AboutUs = () => {
+  const { t } = useTranslation();
   const navigation = useNavigation();
 
   return (
@@ -23,7 +25,7 @@ const AboutUs = () => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>About Us</Text>
+        <Text style={styles.headerTitle}>{t('aboutUsTitle')}</Text>
       </View>
 
       {/* Content */}
@@ -31,31 +33,13 @@ const AboutUs = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.contentContainer}
       >
-        <Text style={styles.title}>Welcome To Cupid Flow</Text>
+        <Text style={styles.title}>{t('aboutWelcomeTitle')}</Text>
 
-        <Text style={styles.text}>
-          Cupid Flow is the smartest way to get your partner to fall in love
-          with you all over again or to use it just as a fun tool to play
-          together on the Go. Connect with the Cupid Flow App and start having
-          endless fun whenever you want to keep each other engaged. The Cupid
-          Flow App turns moments with your partner into a game. It lets you
-          interact with questions and discover little known secret about each
-          other. Whether you are in a long car journey or just looking to pass
-          time, Cupid Flow is here to bring fun, passion and laughter wherever
-          you are! This app works as a personalised trivia app that will take
-          your romantic moments to a whole new level. Cupid Flow was designed
-          with you and your partner in mind to help spark new excitement and
-          romance, and leave those mundane tasks behind. Cupid Flow is a fun way
-          to share your interests. It will make you each feel less like
-          strangers, and more like kindred spirits!
-        </Text>
+        <Text style={styles.text}>{t('aboutDescription')}</Text>
 
-        <Text style={styles.quote}>
-          "Netflx & Chill is Outdated,{'\n'}Cupid Flow & Chill is the new Trend
-          :)"
-        </Text>
+        <Text style={styles.quote}>{t('aboutQuote')}</Text>
 
-        <Text style={styles.thankYou}>Thank You !!</Text>
+        <Text style={styles.thankYou}>{t('thankYou')}</Text>
       </ScrollView>
     </SafeAreaView>
   );

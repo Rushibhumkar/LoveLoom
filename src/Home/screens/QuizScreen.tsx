@@ -20,6 +20,7 @@ import { testUrl } from '../../api/axiosInstance';
 import MainContainer from '../../components/MainContainer';
 import { useRoomConnection } from '../../hooks/useRoomConnection';
 import { sizes } from '../../const';
+import { useTranslation } from 'react-i18next';
 
 interface Question {
   question_id: string;
@@ -41,6 +42,7 @@ interface Props {
 }
 
 const QuizScreen: React.FC<Props> = ({ route }) => {
+  const { t } = useTranslation();
   const { roomId, userID, name, categoryId, role, selectedCategory } =
     route.params;
   useRoomConnection(role, userID);
@@ -126,12 +128,12 @@ const QuizScreen: React.FC<Props> = ({ route }) => {
   useEffect(() => {
     const backAction = () => {
       Alert.alert(
-        'Leave Room',
-        'Are you sure you want to leave the room?',
+        t('leaveRoomTitle'),
+        t('leaveRoomConfirmMsg'),
         [
-          { text: 'Cancel', style: 'cancel' },
+          { text: t('cancelButton'), style: 'cancel' },
           {
-            text: 'Yes',
+            text: t('yesButton'),
             style: 'destructive',
             onPress: () => {
               navigation.reset({
@@ -143,6 +145,7 @@ const QuizScreen: React.FC<Props> = ({ route }) => {
         ],
         { cancelable: true },
       );
+
       return true;
     };
 
@@ -261,7 +264,7 @@ const QuizScreen: React.FC<Props> = ({ route }) => {
             <Text
               style={{ color: '#c3c3c3ff', fontSize: 16, fontWeight: '600' }}
             >
-              You
+              {t('you')}
             </Text>
           </View>
           <Text
@@ -289,7 +292,7 @@ const QuizScreen: React.FC<Props> = ({ route }) => {
             <Text
               style={{ color: '#c3c3c3ff', fontSize: 16, fontWeight: '600' }}
             >
-              Partner
+              {t('partner')}
             </Text>
           </View>
         </View>
@@ -351,8 +354,7 @@ const QuizScreen: React.FC<Props> = ({ route }) => {
             )}
             {finished && (
               <Text style={styles.waitText}>
-                🎉 You've answered everything! ⏳ Waiting for your partner to
-                finish... 🤝
+                🎉 {t('answeredEverything')} ⏳ {t('waitingForPartner')} 🤝
               </Text>
             )}
           </View>

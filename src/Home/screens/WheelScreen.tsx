@@ -22,6 +22,7 @@ import MainContainer from '../../components/MainContainer';
 import { myConsole } from '../../utils/myConsole';
 import { useRoomConnection } from '../../hooks/useRoomConnection';
 import Feather from 'react-native-vector-icons/Feather';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   route: {
@@ -35,6 +36,7 @@ interface Props {
 }
 
 const WheelScreen: React.FC<Props> = ({ route }) => {
+  const { t } = useTranslation();
   const { roomId, userID, name, role } = route.params;
   useRoomConnection(role, userID);
   myConsole('route.params.namemeee', route.params.name);
@@ -121,7 +123,7 @@ const WheelScreen: React.FC<Props> = ({ route }) => {
   // ✅ Spin (only host)
   const handleSpin = () => {
     if (role !== 'host') {
-      ToastAndroid.show('Only host can spin the wheel!', ToastAndroid.SHORT);
+      ToastAndroid.show(t('onlyHostCanSpin'), ToastAndroid.SHORT);
       return;
     }
     if (isSpinning) return;
@@ -133,7 +135,7 @@ const WheelScreen: React.FC<Props> = ({ route }) => {
       console.log('[ACK] spin_wheel =>', res);
       if (!res?.success) {
         setIsSpinning(false);
-        return Alert.alert('Spin failed', res?.message || 'Try again.');
+        Alert.alert(t('spinFailedTitle'), res?.message || t('tryAgain'));
       }
       const idx = res.index;
       wheelRef.current?.spinToSegment(idx);
@@ -144,14 +146,14 @@ const WheelScreen: React.FC<Props> = ({ route }) => {
   // ✅ READY → go to Quiz
   const handleReadyClick = () => {
     if (!selectedCategoryId) {
-      ToastAndroid.show('Please select a category first!', ToastAndroid.SHORT);
+      ToastAndroid.show(t('selectCategoryFirst'), ToastAndroid.SHORT);
       return;
     }
 
     setReady(true);
     emit('ready_start', { roomId, userID, name }, (res: any) => {
       if (res?.success) {
-        ToastAndroid.show('You are ready!', ToastAndroid.SHORT);
+        ToastAndroid.show(t('youAreReady'), ToastAndroid.SHORT);
         navigation.navigate('QuizScreen', {
           roomId,
           userID,
@@ -161,7 +163,7 @@ const WheelScreen: React.FC<Props> = ({ route }) => {
           role,
         });
       } else {
-        Alert.alert('Error', res?.message || 'Failed to start.');
+        Alert.alert(t('errorTitle'), res?.message || t('failedToStart'));
       }
     });
   };
@@ -169,12 +171,12 @@ const WheelScreen: React.FC<Props> = ({ route }) => {
   useEffect(() => {
     const backAction = () => {
       Alert.alert(
-        'Leave Room',
-        'Are you sure you want to leave the room?',
+        t('leaveRoomTitle'),
+        t('leaveRoomConfirmMsg'),
         [
-          { text: 'Cancel', style: 'cancel' },
+          { text: t('cancelButton'), style: 'cancel' },
           {
-            text: 'Yes',
+            text: t('yesButton'),
             style: 'destructive',
             onPress: () => {
               navigation.reset({
@@ -186,6 +188,7 @@ const WheelScreen: React.FC<Props> = ({ route }) => {
         ],
         { cancelable: true },
       );
+
       return true;
     };
 
@@ -229,8 +232,7 @@ const WheelScreen: React.FC<Props> = ({ route }) => {
         >
           <Feather name="menu" size={28} color="#0b0e1eff" />
         </TouchableOpacity>
-        <Text style={styles.heading}>🎡 Spin the Wheel of Love 💞</Text>
-
+        <Text style={styles.heading}>🎡 {t('spinTheWheelTitle')}</Text>
         <View style={styles.wheelContainer}>
           <CustomWheel
             ref={wheelRef}
@@ -258,17 +260,17 @@ const WheelScreen: React.FC<Props> = ({ route }) => {
         </View>
 
         <Text style={styles.categoryText}>
-          💖 Selected Category:{' '}
+          💖 {t('selectedCategoryLabel')}{' '}
           <Text style={styles.highlight}>
             {selectedCategory !== 'None yet'
               ? `✨ ${selectedCategory}`
-              : 'Not yet 🕓'}
+              : t('notSelectedYet')}
           </Text>
         </Text>
 
         {selectedCategoryId && !ready && (
           <TouchableOpacity style={styles.readyBtn} onPress={handleReadyClick}>
-            <Text style={styles.readyText}>🚀 READY TO PLAY 💕</Text>
+            <Text style={styles.readyText}>🚀 {t('readyToPlayButton')}</Text>
           </TouchableOpacity>
         )}
       </View>

@@ -21,6 +21,7 @@ import {
 import UsernameLoginBottom from '../../components/UsernameLoginBottom';
 import { storeData, storeDataJson } from '../../hooks/useAsyncStorage';
 import MainContainer from '../../components/MainContainer';
+import { useTranslation } from 'react-i18next';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -30,6 +31,7 @@ interface FinalScreenProps {
 }
 
 const FinalScreen: React.FC<FinalScreenProps> = ({ onPrev, onLogin }) => {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [showLoginBottom, setShowLoginBottom] = useState(false);
 
@@ -89,7 +91,7 @@ const FinalScreen: React.FC<FinalScreenProps> = ({ onPrev, onLogin }) => {
             <Text style={styles.logo}>
               Cupid<Text style={styles.logoAccent}>Flow</Text>
             </Text>
-            <Text style={styles.tagline}>Where Love Stories Begin</Text>
+            <Text style={styles.tagline}>{t('tagline')}</Text>
           </View>
 
           {/* Illustration Section */}
@@ -105,9 +107,10 @@ const FinalScreen: React.FC<FinalScreenProps> = ({ onPrev, onLogin }) => {
           <View style={styles.footer}>
             <View style={styles.footerContent}>
               <Text style={styles.welcomeText}>
-                Made with <Text style={styles.heart}>💖</Text>
+                {t('madeWith')} <Text style={styles.heart}>💖</Text>
                 {'\n'}
-                For Amazing <Text style={styles.highlight}>Couples</Text>
+                {t('forAmazing')}{' '}
+                <Text style={styles.highlight}>{t('couples')}</Text>
               </Text>
 
               {/* Login Buttons Container */}
@@ -120,7 +123,7 @@ const FinalScreen: React.FC<FinalScreenProps> = ({ onPrev, onLogin }) => {
                   <View style={styles.buttonContent}>
                     <Feather name="user" size={20} color="#FF5277" />
                     <Text style={styles.credentialsText}>
-                      Login with Credentials
+                      {t('loginWithCredentials')}
                     </Text>
                   </View>
                   <Feather name="arrow-right" size={18} color="#FF5277" />
@@ -141,31 +144,35 @@ const FinalScreen: React.FC<FinalScreenProps> = ({ onPrev, onLogin }) => {
                     <View style={styles.buttonContent}>
                       <AntDesign name="google" size={20} color="#fff" />
                       <Text style={styles.googleText}>
-                        Continue with Google
+                        {t('continueWithGoogle')}
                       </Text>
                     </View>
                   )}
                 </TouchableOpacity>
 
                 {/* Divider */}
-                <View style={styles.divider}>
+                {/* <View style={styles.divider}>
                   <View style={styles.dividerLine} />
-                  <Text style={styles.dividerText}>or</Text>
+                  <Text style={styles.dividerText}>{t('or')}</Text>
                   <View style={styles.dividerLine} />
-                </View>
+                </View> */}
 
                 {/* Guest Option */}
-                <TouchableOpacity style={styles.guestButton}>
-                  <Text style={styles.guestText}>Continue as Guest</Text>
-                </TouchableOpacity>
+                {/* <TouchableOpacity style={styles.guestButton}>
+                  <Text style={styles.guestText}>{t('continueAsGuest')}</Text>
+                </TouchableOpacity> */}
               </View>
 
               {/* Terms & Conditions */}
-              <Text style={styles.termsText}>
+              {/* <Text style={styles.termsText}>
                 By continuing, you agree to our{' '}
                 <Text style={styles.link}>Privacy Policy</Text> and{' '}
                 <Text style={styles.link}>Terms & Conditions</Text>
-              </Text>
+              </Text> */}
+
+              {/* <Text style={styles.termsText}>
+                {t('privacyPolicy')} & {t('termsConditions')}
+              </Text> */}
             </View>
           </View>
 

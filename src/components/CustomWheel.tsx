@@ -18,6 +18,7 @@ import {
 } from 'react-native';
 import Svg, { G, Path, Text as SvgText, Circle } from 'react-native-svg';
 import pinIcon from '../assets/images/pin.png';
+import { useTranslation } from 'react-i18next';
 
 export interface CustomWheelRef {
   spin: () => void;
@@ -51,6 +52,7 @@ const CustomWheel = forwardRef<CustomWheelRef, Props>(
   ) => {
     const animatedRotation = useRef(new Animated.Value(0)).current;
     const [isSpinning, setIsSpinning] = useState(false);
+    const { t } = useTranslation();
 
     const numSegments = segments.length;
     const anglePerSegment = 360 / numSegments;
@@ -176,7 +178,7 @@ const CustomWheel = forwardRef<CustomWheelRef, Props>(
             style={[styles.button, isSpinning && { opacity: 0.5 }]}
           >
             <Text style={styles.buttonText}>
-              {isSpinning ? 'Spinning...' : buttonText}
+              {isSpinning ? t('spinning') : t('spin')}
             </Text>
           </TouchableOpacity>
         )}

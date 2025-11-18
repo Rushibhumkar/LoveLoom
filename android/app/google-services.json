@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "894273110416",
+    "project_id": "cupidflow-1c1ee",
+    "storage_bucket": "cupidflow-1c1ee.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:894273110416:android:573fc7dc7d5e1e0d98b315",
+        "android_client_info": {
+          "package_name": "com.cupidflow"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "894273110416-94qs3n40bgutmdd26vk6jmj7u1qfasab.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cupidflow",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "894273110416-va6mbtn972vvor62r9v0lmq48bkpj8ij.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cupidflow",
+            "certificate_hash": "9473142a0d5e0868b2473b0d623a3790e59ef778"
+          }
+        },
+        {
+          "client_id": "894273110416-maoimnu0ahrm73enop651el7htnknbd1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDxIHV8DT7LEIhRjoOGT9JBb8_xZ3Ue3F8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "894273110416-maoimnu0ahrm73enop651el7htnknbd1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -18,10 +18,12 @@ import {
   GoogleSignin,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
-import UsernameLoginBottom from '../../components/UsernameLoginBottom';
 import { storeData, storeDataJson } from '../../hooks/useAsyncStorage';
 import MainContainer from '../../components/MainContainer';
 import { useTranslation } from 'react-i18next';
+import { API_AXIOS, WEB_CLIENT_ID } from '../../api/axiosInstance';
+import axios from 'axios';
+import { myConsole } from '../../utils/myConsole';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -33,45 +35,104 @@ interface FinalScreenProps {
 const FinalScreen: React.FC<FinalScreenProps> = ({ onPrev, onLogin }) => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
-  const [showLoginBottom, setShowLoginBottom] = useState(false);
 
   console.log('reached');
 
   const handleGoogleLogin = async () => {
     try {
+      console.log('[DEBUG] Starting Google Sign-In...');
       setLoading(true);
 
-      // Ensure play services available
+      // Ensure Google Play Services are available
       await GoogleSignin.hasPlayServices({
         showPlayServicesUpdateDialog: true,
       });
 
-      // Try sign-in
-      const { data } = await GoogleSignin.signIn();
+      // Trigger Google Sign-In
+      const signInResult = await GoogleSignin.signIn();
 
-      // ✅ Dummy handling for now — no backend
-      console.log('Google User Info:', data);
-      Alert.alert(
-        'Welcome!',
-        `Hello ${data?.user.name || 'User'} 👋\nEmail: ${data?.user.email}`,
+      // Debug logs to inspect the sign-in result
+      console.log(
+        '[DEBUG] Full Google signInResult:',
+        JSON.stringify(signInResult, null, 2),
       );
-      onLogin();
+      console.log('[DEBUG] Extracted idToken:', signInResult?.data?.idToken);
+      console.log('[DEBUG] User object:', signInResult?.data?.user);
+
+      const idToken = signInResult?.data?.idToken;
+      const user = signInResult?.data?.user;
+
+      // Check if token is missing → frontend issue
+      if (!idToken) {
+        console.error(
+          '[ERROR] No ID token from Google — problem is FRONTEND (React Native side).',
+        );
+        throw new Error('Google Sign-In failed — no ID token received.');
+      }
+
+      console.log('[DEBUG] Got valid idToken, proceeding to backend...');
+      console.log('[DEBUG] Google User Info:', user);
+
+      const response = await API_AXIOS.post('/users/google-login', {
+        credential: idToken,
+      });
+
+      console.log(
+        '[DEBUG] Backend raw response:',
+        JSON.stringify(response.data, null, 2),
+      );
+
+      // ✅ If backend confirms success
+      if (response.data?.status) {
+        const { accessToken, refreshToken, userData } = response.data.data;
+        myConsole('userDasdfdsf', userData?.data);
+
+        await storeData('authToken', accessToken);
+        await storeData('refreshToken', refreshToken);
+        await storeDataJson('user', userData);
+
+        console.log('[DEBUG] Tokens and user saved locally ✅');
+        onLogin();
+        return;
+      }
+
+      throw new Error(response.data?.msg || 'Google Sign-In failed');
     } catch (error: any) {
-      console.log('Google Sign-In Error:', error);
+      // Log full error trace
+      console.error('[TRACE ERROR ORIGIN]', error.stack);
+      console.log('[ERROR] Google Sign-In or Backend Error:', error);
+      console.log(
+        '[ERROR DETAILS]',
+        error.response?.data || error.message || JSON.stringify(error, null, 2),
+      );
+
+      // Handle known Google Sign-In errors
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         Alert.alert('Cancelled', 'Google Sign-In was cancelled.');
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        Alert.alert('Already in progress');
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        Alert.alert('Error', 'Play services not available or outdated.');
       } else {
-        Alert.alert('Error', 'Something went wrong during Google Sign-In.');
+        Alert.alert(
+          'Error',
+          error.response?.data?.msg ||
+            error.message ||
+            'Something went wrong during Google Sign-In.',
+        );
       }
     } finally {
+      console.log('[DEBUG] Google Sign-In process completed.');
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    console.log('[DEBUG] Configuring Google Sign-In...');
     GoogleSignin.configure({
-      webClientId: 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com', // 🔑 from Firebase console
+      webClientId: WEB_CLIENT_ID,
       offlineAccess: true,
+      forceCodeForRefreshToken: true,
     });
   }, []);
 
@@ -116,18 +177,6 @@ const FinalScreen: React.FC<FinalScreenProps> = ({ onPrev, onLogin }) => {
               {/* Login Buttons Container */}
               <View style={styles.buttonsContainer}>
                 {/* Credentials Login Button */}
-                <TouchableOpacity
-                  style={styles.credentialsButton}
-                  onPress={() => setShowLoginBottom(true)}
-                >
-                  <View style={styles.buttonContent}>
-                    <Feather name="user" size={20} color="#FF5277" />
-                    <Text style={styles.credentialsText}>
-                      {t('loginWithCredentials')}
-                    </Text>
-                  </View>
-                  <Feather name="arrow-right" size={18} color="#FF5277" />
-                </TouchableOpacity>
 
                 {/* Google Login Button */}
                 <TouchableOpacity
@@ -149,40 +198,17 @@ const FinalScreen: React.FC<FinalScreenProps> = ({ onPrev, onLogin }) => {
                     </View>
                   )}
                 </TouchableOpacity>
-
-                {/* Divider */}
-                {/* <View style={styles.divider}>
-                  <View style={styles.dividerLine} />
-                  <Text style={styles.dividerText}>{t('or')}</Text>
-                  <View style={styles.dividerLine} />
-                </View> */}
-
-                {/* Guest Option */}
-                {/* <TouchableOpacity style={styles.guestButton}>
-                  <Text style={styles.guestText}>{t('continueAsGuest')}</Text>
-                </TouchableOpacity> */}
               </View>
-
-              {/* Terms & Conditions */}
-              {/* <Text style={styles.termsText}>
-                By continuing, you agree to our{' '}
-                <Text style={styles.link}>Privacy Policy</Text> and{' '}
-                <Text style={styles.link}>Terms & Conditions</Text>
-              </Text> */}
-
-              {/* <Text style={styles.termsText}>
-                {t('privacyPolicy')} & {t('termsConditions')}
-              </Text> */}
             </View>
           </View>
 
           {/* Username Login Bottom Sheet */}
-          {showLoginBottom && (
+          {/* {showLoginBottom && (
             <UsernameLoginBottom
               onClose={() => setShowLoginBottom(false)}
               onLogin={onLogin}
             />
-          )}
+          )} */}
         </ScrollView>
       </KeyboardAvoidingView>
     </MainContainer>

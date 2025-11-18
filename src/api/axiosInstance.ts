@@ -1,11 +1,13 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { getData } from '../hooks/useAsyncStorage';
 
+export const WEB_CLIENT_ID = `894273110416-maoimnu0ahrm73enop651el7htnknbd1.apps.googleusercontent.com`;
+
 // export const HOST = 'http://192.0.0.1:5050';
-export const HOST = 'http://192.168.31.34:5050';
+export const HOST = 'https://api-cupidflow.iceweb.in';
+// export const HOST = 'http://192.168.0.106:5050';
 export const testUrl = `${HOST}/api/v1/`;
 // export const testUrl = `https://api-cupidflow.iceweb.in/api/v1/`;
-// export const HOST = 'https://api-cupidflow.iceweb.in/';
 
 export const baseUrl: string = testUrl;
 

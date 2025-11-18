@@ -28,6 +28,7 @@ import { useSocket } from '../hooks/useSocket';
 import { getUserData } from '../api/userApi';
 import { useRoomConnection } from '../hooks/useRoomConnection';
 import { useTranslation } from 'react-i18next';
+import { myConsole } from '../utils/myConsole';
 
 const HomeScreen = () => {
   const { t } = useTranslation();
@@ -41,6 +42,7 @@ const HomeScreen = () => {
   useEffect(() => {
     const fetchUser = async () => {
       const user = await getUserData();
+      myConsole('useruserss', user);
       if (user) {
         console.log('[INIT] Logged-in user loaded:', user);
         setPlayer({

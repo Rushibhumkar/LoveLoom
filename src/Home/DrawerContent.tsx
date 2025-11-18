@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -13,6 +13,7 @@ import CustomAvatar from '../components/CustomAvatar';
 import { getUserData, useUserData } from '../api/userApi';
 import { myConsole } from '../utils/myConsole';
 import { useTranslation } from 'react-i18next';
+import { HOST } from '../api/axiosInstance';
 
 // Drawer route types
 type DrawerParamList = {
@@ -36,20 +37,30 @@ const DrawerContent: React.FC<Props> = ({ onLogout }) => {
 
   // ✅ correct type for drawer navigation
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { data: user, loading, error, refetch } = useUserData();
-  console.log('usersss', { user, loading, error });
 
+  const { data: userRaw, loading, error } = useUserData();
+  const user = userRaw?.data ? userRaw.data : userRaw;
+  myConsole('data', user);
+
+  myConsole('loading', loading);
+  myConsole('error', error);
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <CustomAvatar
-          imageUrl={user?.profilePic}
-          name={`${user?.userFirstName || ''} ${
-            user?.userSurname || ''
-          }`.trim()}
+          imageUrl={
+            user?.profilePic?.startsWith('http')
+              ? user.profilePic
+              : `${HOST}${user?.profilePic || ''}`
+          }
+          name={
+            `${user?.userFirstName || ''} ${user?.userSurname || ''}`.trim() ||
+            'User'
+          }
           size={65}
         />
+
         <Text style={styles.name}>
           {`${user?.userFirstName || ''} ${user?.userSurname || ''}`.trim() ||
             'User'}

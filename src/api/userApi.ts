@@ -3,9 +3,9 @@ import { useState, useEffect, useCallback } from 'react';
 
 export const getUserData = async () => {
   try {
-    const user = await getDataJson('userInfo');
+    const user = await getDataJson('user');
     console.log('🟢 getUserData() ->', user);
-    return user;
+    return user?.data;
   } catch (err) {
     console.log('❌ getUserData() Error:', err);
     return null;
@@ -21,9 +21,9 @@ export const useUserData = () => {
     setLoading(true);
     setError(null);
     try {
-      const user = await getDataJson('userInfo');
-      console.log('🟢 useUserData ->', user);
-      setData(user);
+      const user = await getDataJson('user');
+      console.log('🟢 useUserData ->', user.data);
+      setData(user.data);
     } catch (err) {
       console.log('❌ useUserData Error:', err);
       setError(err);

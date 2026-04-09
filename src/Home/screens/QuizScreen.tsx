@@ -21,11 +21,12 @@ import MainContainer from '../../components/MainContainer';
 import { useRoomConnection } from '../../hooks/useRoomConnection';
 import { sizes } from '../../const';
 import { useTranslation } from 'react-i18next';
+import { myConsole } from '../../utils/myConsole';
 
 interface Question {
   question_id: string;
   question_text: string;
-  question_options: string;
+  question_options: string[];
 }
 
 interface Props {
@@ -164,6 +165,8 @@ const QuizScreen: React.FC<Props> = ({ route }) => {
         `${testUrl}quiz/get-questions/${encodeURIComponent(categoryId)}`,
       );
       const data = await res.json();
+
+      myConsole('data', data);
       const q = data?.data?.questions?.slice(0, 10) || [];
       setQuestions(q);
       setTotalQuestions(q.length);
@@ -219,7 +222,6 @@ const QuizScreen: React.FC<Props> = ({ route }) => {
     );
     setAnswers(prev => [...prev, payload]);
 
-    // ✅ clear selection so same option text in next question isn't pre-selected
     setSelectedOption(null);
 
     if (index + 1 < questions.length) {
@@ -236,6 +238,12 @@ const QuizScreen: React.FC<Props> = ({ route }) => {
 
   const currentQ = questions[index];
 
+  if (!currentQ) return null;
+
+  myConsole('questionsss', questions);
+
+  const options = currentQ.question_options;
+
   if (!questions.length)
     return (
       <View style={styles.center}>
@@ -243,6 +251,7 @@ const QuizScreen: React.FC<Props> = ({ route }) => {
       </View>
     );
 
+  myConsole('currentQ.question_optionsss', currentQ.question_options);
   return (
     <MainContainer>
       <ScrollView contentContainerStyle={styles.container}>
@@ -325,33 +334,31 @@ const QuizScreen: React.FC<Props> = ({ route }) => {
               paddingVertical: finished ? sizes.height / 8 : sizes.height / 6,
             }}
           >
-            {JSON.parse(currentQ.question_options).map(
-              (opt: string, i: number) => (
-                <TouchableOpacity
-                  key={i}
+            {options.map((opt: string, i: number) => (
+              <TouchableOpacity
+                key={i}
+                style={[
+                  styles.option,
+                  selectedOption === opt && {
+                    backgroundColor: '#f79aadff',
+                    borderColor: '#f8bfcaff',
+                  },
+                ]}
+                onPress={() => {
+                  setSelectedOption(opt);
+                  handleAnswer(currentQ, opt);
+                }}
+              >
+                <Text
                   style={[
-                    styles.option,
-                    selectedOption === opt && {
-                      backgroundColor: '#f79aadff',
-                      borderColor: '#f8bfcaff',
-                    },
+                    styles.optText,
+                    selectedOption === opt && { color: '#fff' },
                   ]}
-                  onPress={() => {
-                    setSelectedOption(opt);
-                    handleAnswer(currentQ, opt);
-                  }}
                 >
-                  <Text
-                    style={[
-                      styles.optText,
-                      selectedOption === opt && { color: '#fff' },
-                    ]}
-                  >
-                    {opt}
-                  </Text>
-                </TouchableOpacity>
-              ),
-            )}
+                  {opt}
+                </Text>
+              </TouchableOpacity>
+            ))}
             {finished && (
               <Text style={styles.waitText}>
                 🎉 {t('answeredEverything')} ⏳ {t('waitingForPartner')} 🤝

@@ -1,4 +1,4 @@
-package com.cupidflow
+package com.loveloom
 
 import android.app.Application
 import com.facebook.react.PackageList

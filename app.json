@@ -1,4 +1,7 @@
 {
-  "name": "CupidFlow",
-  "displayName": "CupidFlow"
+  "name": "LoveLoom",
+  "displayName": "LoveLoom",
+    "react-native-google-mobile-ads": {
+    "android_app_id": "ca-app-pub-4770155226662571~2915947769"
+  }
 }

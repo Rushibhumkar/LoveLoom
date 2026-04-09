@@ -23,6 +23,19 @@ import { myConsole } from '../../utils/myConsole';
 import { useRoomConnection } from '../../hooks/useRoomConnection';
 import Feather from 'react-native-vector-icons/Feather';
 import { useTranslation } from 'react-i18next';
+import {
+  InterstitialAd,
+  AdEventType,
+  TestIds,
+} from 'react-native-google-mobile-ads';
+
+const adUnitId = __DEV__
+  ? TestIds.INTERSTITIAL
+  : 'ca-app-pub-4770155226662571/1156444855';
+
+const interstitial = InterstitialAd.createForAdRequest(adUnitId, {
+  requestNonPersonalizedAdsOnly: true,
+});
 
 interface Props {
   route: {
@@ -74,6 +87,19 @@ const WheelScreen: React.FC<Props> = ({ route }) => {
         setLoading(false);
       }
     })();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = interstitial.addAdEventListener(
+      AdEventType.LOADED,
+      () => {
+        console.log('Ad Loaded');
+      },
+    );
+
+    interstitial.load();
+
+    return unsubscribe;
   }, []);
 
   // ✅ Socket listeners
@@ -154,6 +180,11 @@ const WheelScreen: React.FC<Props> = ({ route }) => {
     emit('ready_start', { roomId, userID, name }, (res: any) => {
       if (res?.success) {
         ToastAndroid.show(t('youAreReady'), ToastAndroid.SHORT);
+
+        if (interstitial.loaded) {
+          interstitial.show();
+        }
+
         navigation.navigate('QuizScreen', {
           roomId,
           userID,

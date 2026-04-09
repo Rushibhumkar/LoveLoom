@@ -19,7 +19,17 @@ import { testUrl } from '../../api/axiosInstance';
 import { useRoomConnection } from '../../hooks/useRoomConnection';
 import MainContainer from '../../components/MainContainer';
 import { useTranslation } from 'react-i18next';
+import {
+  InterstitialAd,
+  AdEventType,
+  TestIds,
+} from 'react-native-google-mobile-ads';
 
+const adUnitId = __DEV__
+  ? TestIds.INTERSTITIAL
+  : 'ca-app-pub-4770155226662571/1156444855';
+
+const interstitial = InterstitialAd.createForAdRequest(adUnitId);
 interface Props {
   route: {
     params: {
@@ -62,6 +72,10 @@ const GuessScreen: React.FC<Props> = ({ route }) => {
   const [progress] = useState(new Animated.Value(0));
   const [lockedQuestions, setLockedQuestions] = useState<string[]>([]);
 
+  useEffect(() => {
+    interstitial.load();
+  }, []);
+
   const { socket, emit } = useSocket({
     guess_submitted: p => {
       console.log('[SOCKET] Partner submitted guesses =>', p);
@@ -70,18 +84,42 @@ const GuessScreen: React.FC<Props> = ({ route }) => {
       console.log('[SOCKET] Final result =>', data);
       const host = data?.host || {};
       const guest = data?.guest || {};
-      navigation.navigate('ResultScreen', {
-        result: {
-          hostName: host.name,
-          hostScore: host.score,
-          guestName: guest.name,
-          guestScore: guest.score,
-        },
-        roomId,
-        userID,
-        categoryId,
-        role,
-      });
+      if (interstitial.loaded) {
+        interstitial.show();
+
+        const unsubscribe = interstitial.addAdEventListener(
+          AdEventType.CLOSED,
+          () => {
+            unsubscribe();
+
+            navigation.navigate('ResultScreen', {
+              result: {
+                hostName: host.name,
+                hostScore: host.score,
+                guestName: guest.name,
+                guestScore: guest.score,
+              },
+              roomId,
+              userID,
+              categoryId,
+              role,
+            });
+          },
+        );
+      } else {
+        navigation.navigate('ResultScreen', {
+          result: {
+            hostName: host.name,
+            hostScore: host.score,
+            guestName: guest.name,
+            guestScore: guest.score,
+          },
+          roomId,
+          userID,
+          categoryId,
+          role,
+        });
+      }
     },
   });
 

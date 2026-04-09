@@ -7,6 +7,7 @@ import { getData } from './src/hooks/useAsyncStorage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import i18n from './src/i18n';
 import { WEB_CLIENT_ID } from './src/api/axiosInstance';
+import mobileAds from 'react-native-google-mobile-ads';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
@@ -39,6 +40,14 @@ const App = () => {
         setLangReady(true);
       }
     })();
+  }, []);
+
+  useEffect(() => {
+    const initAds = async () => {
+      await mobileAds().initialize();
+      console.log('AdMob Initialized');
+    };
+    initAds();
   }, []);
 
   // ✅ Check if user is already logged in

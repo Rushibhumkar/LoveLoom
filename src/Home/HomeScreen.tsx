@@ -29,6 +29,19 @@ import { getUserData } from '../api/userApi';
 import { useRoomConnection } from '../hooks/useRoomConnection';
 import { useTranslation } from 'react-i18next';
 import { myConsole } from '../utils/myConsole';
+import {
+  InterstitialAd,
+  AdEventType,
+  TestIds,
+} from 'react-native-google-mobile-ads';
+
+const adUnitId = __DEV__
+  ? TestIds.INTERSTITIAL
+  : 'ca-app-pub-4770155226662571/1156444855';
+
+const interstitial = InterstitialAd.createForAdRequest(adUnitId, {
+  requestNonPersonalizedAdsOnly: true,
+});
 
 const HomeScreen = () => {
   const { t } = useTranslation();
@@ -38,6 +51,19 @@ const HomeScreen = () => {
   const { emit } = useSocket();
 
   const [player, setPlayer] = useState<any>(null);
+
+  useEffect(() => {
+    const unsubscribe = interstitial.addAdEventListener(
+      AdEventType.LOADED,
+      () => {
+        console.log('Ad Loaded');
+      },
+    );
+
+    interstitial.load();
+
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -89,6 +115,9 @@ const HomeScreen = () => {
       setLoading(false);
 
       if (res?.success) {
+        if (interstitial.loaded) {
+          interstitial.show();
+        }
         console.log('[ROOM] Room created successfully =>', res.roomId);
         await AsyncStorage.multiSet([
           ['roomId', res.roomId],
@@ -138,6 +167,9 @@ const HomeScreen = () => {
       setLoading(false);
 
       if (res?.success) {
+        if (interstitial.loaded) {
+          interstitial.show();
+        }
         console.log('[ROOM] Joined room successfully =>', roomCode.trim());
         await AsyncStorage.multiSet([
           ['roomId', roomCode.trim()],

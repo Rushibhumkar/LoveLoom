@@ -1,4 +1,4 @@
-package com.cupidflow
+package com.loveloom
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

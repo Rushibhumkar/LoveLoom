@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "116340641228-73q21i2q7t2unit5bspsal9ktnancj9m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.loveloom",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
           "client_id": "116340641228-du6c49i2v2d3tkik3gsat16u0iv696mq.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

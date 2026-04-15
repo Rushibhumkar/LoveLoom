@@ -4,6 +4,7 @@ import IntroScreen from './components/IntroScreen';
 import RoundScreen from './components/RoundScreen';
 import FinalScreen from './components/FinalScreen';
 import MainContainer from '../components/MainContainer';
+import { colors } from '../utils/theme';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -56,5 +57,8 @@ const LovifyScreen: React.FC<LovifyScreenProps> = ({ onLogin }) => {
 export default LovifyScreen;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0D0D1C' },
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
 });

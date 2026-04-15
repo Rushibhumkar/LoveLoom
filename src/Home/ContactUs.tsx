@@ -17,7 +17,7 @@ const ContactUs = () => {
   const navigation = useNavigation();
 
   const handleEmailPress = () => {
-    Linking.openURL('mailto:contact@cupidflow.com');
+    Linking.openURL('mailto:contact@loveloom.com');
   };
 
   return (
@@ -45,7 +45,7 @@ const ContactUs = () => {
             color="#A3A3A3"
             style={styles.mailIcon}
           />
-          <Text style={styles.email}>contact@cupidflow.com</Text>
+          <Text style={styles.email}>contact@loveloom.com</Text>
 
           <TouchableOpacity
             style={styles.emailBtn}

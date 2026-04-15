@@ -22,52 +22,62 @@ interface IntroScreenProps {
 }
 
 const IntroScreen: React.FC<IntroScreenProps> = ({ onNext }) => {
-  const [isLangModalVisible, setLangModalVisible] = useState(true); // show at first launch
+  const [isLangModalVisible, setLangModalVisible] = useState(true);
   const { t } = useTranslation();
 
   const changeLanguage = async (lang: 'en' | 'hi') => {
     i18n.changeLanguage(lang);
-    await storeData('appLanguage', lang); // store selected language
+    await storeData('appLanguage', lang);
     setLangModalVisible(false);
   };
+
   return (
     <MainContainer>
       <View style={{ width: screenWidth }}>
         <ImageBackground
           source={{
-            uri: 'https://images.stockcake.com/public/0/c/6/0c66db9c-7066-496b-9c1b-9daa65d7e01f_large/silhouette-love-moment-stockcake.jpg',
+            uri: 'https://images.pexels.com/photos/1181695/pexels-photo-1181695.jpeg?auto=compress&cs=tinysrgb&w=1600',
           }}
           style={styles.bgImage}
           resizeMode="cover"
         >
           <View style={styles.overlay}>
-            <Text style={styles.logo}>
-              Cupid<Text style={styles.logoAccent}>Flow</Text>
-            </Text>
-            <View
-              style={{
-                position: 'absolute',
-                bottom: '20%',
-                right: 16,
-                alignItems: 'flex-end',
-              }}
-            >
-              <Text style={styles.mainTitle}>SHARE EVERYTHING</Text>
-              <Text style={styles.subTitle}>without saying</Text>
+            <View style={styles.logoContainer}>
+              <Text style={styles.logo}>
+                Love<Text style={styles.logoAccent}>Loom</Text>
+              </Text>
+              <View style={styles.heartIcon}>
+                <Feather name="heart" size={20} color="#FF6B8B" />
+              </View>
+            </View>
+            <View style={styles.textGroup}>
+              <Text style={styles.mainTitle}>DEEPEN YOUR BOND</Text>
+              <Text style={styles.subTitle}>Spin, laugh, love together 💖</Text>
             </View>
           </View>
           <TouchableOpacity style={styles.nextBtn} onPress={onNext}>
             <Feather name="arrow-right" size={28} color="#fff" />
           </TouchableOpacity>
         </ImageBackground>
+
         <Modal visible={isLangModalVisible} transparent animationType="fade">
           <View style={styles.modalBackdrop}>
             <View style={styles.modalContainer}>
-              <Text style={styles.modalTitle}>Select Language</Text>
+              <Feather
+                name="heart"
+                size={28}
+                color="#FF6B8B"
+                style={styles.modalHeart}
+              />
+              <Text style={styles.modalTitle}>Choose Your Language</Text>
+              <Text style={styles.modalSubtitle}>
+                Select your preferred language to begin
+              </Text>
 
               <TouchableOpacity
                 style={[styles.langButton, { marginBottom: 12 }]}
                 onPress={() => changeLanguage('en')}
+                activeOpacity={0.8}
               >
                 <Text style={styles.langText}>English</Text>
               </TouchableOpacity>
@@ -75,6 +85,7 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ onNext }) => {
               <TouchableOpacity
                 style={styles.langButton}
                 onPress={() => changeLanguage('hi')}
+                activeOpacity={0.8}
               >
                 <Text style={styles.langText}>हिंदी</Text>
               </TouchableOpacity>
@@ -89,79 +100,135 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ onNext }) => {
 export default IntroScreen;
 
 const styles = StyleSheet.create({
-  bgImage: { height: '100%', width: screenWidth, justifyContent: 'flex-end' },
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.3)', padding: 20 },
-  logo: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#fff',
-    marginTop: 20,
-    textAlign: 'center',
+  bgImage: {
+    height: '100%',
+    width: screenWidth,
+    justifyContent: 'flex-end',
   },
-  logoAccent: { color: '#FF5277' },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+    justifyContent: 'space-between',
+  },
+  logoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+    position: 'relative',
+  },
+  logo: {
+    fontSize: 34,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  logoAccent: {
+    color: '#FF6B8B',
+  },
+  heartIcon: {
+    marginLeft: 8,
+    marginTop: 4,
+  },
+  textGroup: {
+    alignItems: 'flex-end',
+    marginBottom: '20%',
+    paddingRight: 8,
+  },
   mainTitle: {
-    fontSize: 28,
-    fontWeight: '500',
-    letterSpacing: 1.2,
-    color: '#fff',
-    textAlign: 'center',
+    fontSize: 26,
+    fontWeight: '700',
+    letterSpacing: 1.5,
+    color: '#FFFFFF',
+    textAlign: 'right',
+    textShadowColor: 'rgba(0,0,0,0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   subTitle: {
     fontSize: 18,
-    color: '#ffb3c1',
-    letterSpacing: 1.1,
+    color: '#FFD1DC',
+    letterSpacing: 0.5,
     marginTop: 8,
-    textAlign: 'center',
+    textAlign: 'right',
+    fontWeight: '500',
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   nextBtn: {
-    backgroundColor: '#FF5277',
-    width: 55,
-    height: 55,
-    borderRadius: 50,
+    backgroundColor: '#FF6B8B',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'absolute',
-    bottom: 20,
-    right: 22,
+    bottom: 24,
+    right: 24,
+    shadowColor: '#FF5277',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 8,
   },
   modalBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.65)',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 24,
   },
   modalContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    paddingVertical: 28,
+    backgroundColor: '#FFF9FB',
+    borderRadius: 28,
+    paddingVertical: 32,
     paddingHorizontal: 24,
     width: '100%',
-    maxWidth: 320,
+    maxWidth: 340,
     alignItems: 'center',
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 3 },
-    shadowRadius: 6,
+    elevation: 12,
+    shadowColor: '#FF6B8B',
+    shadowOpacity: 0.25,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 18,
+    borderWidth: 1,
+    borderColor: '#FFE2E8',
+  },
+  modalHeart: {
+    marginBottom: 12,
   },
   modalTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    marginBottom: 20,
-    color: '#1E293B',
+    fontSize: 24,
+    fontWeight: '800',
+    marginBottom: 6,
+    color: '#2D1B2E',
+    letterSpacing: -0.3,
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: '#9B7E8C',
+    marginBottom: 28,
+    textAlign: 'center',
+    fontWeight: '500',
   },
   langButton: {
     width: '100%',
     paddingVertical: 14,
-    borderWidth: 2,
-    borderColor: '#FF5277',
-    borderRadius: 12,
+    borderRadius: 40,
     alignItems: 'center',
+    backgroundColor: '#FFF0F3',
+    borderWidth: 1.5,
+    borderColor: '#FFB7C5',
   },
   langText: {
-    fontSize: 16,
+    fontSize: 17,
     color: '#FF5277',
-    fontWeight: '600',
+    fontWeight: '700',
+    letterSpacing: 0.3,
   },
 });

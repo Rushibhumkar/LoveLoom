@@ -1,13 +1,14 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { getData } from '../hooks/useAsyncStorage';
 
-export const WEB_CLIENT_ID = `112843665462-q6gj7rihjlc3s08i36vd2jiq9l40qhet.apps.googleusercontent.com`;
+// export const WEB_CLIENT_ID = `112843665462-q6gj7rihjlc3s08i36vd2jiq9l40qhet.apps.googleusercontent.com`;
+export const WEB_CLIENT_ID = `116340641228-mq0f3nld1n41o48a2cqb3kk071gvkd20.apps.googleusercontent.com`;
 
-const isLive = true;
+const isLive = false;
 
 export const HOST = isLive
   ? 'https://cupid-flow.dilmil.fun'
-  : 'http://192.168.0.120:5050';
+  : 'http://192.168.0.123:5050';
 
 export const testUrl = `${HOST}/api/v1/`;
 export const baseUrl: string = testUrl;

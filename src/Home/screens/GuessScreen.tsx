@@ -1,5 +1,6 @@
 // ---------------------------------------------------
 // GuessScreen.tsx — Guess your partner’s answers phase
+// Romantic UI with custom love colors
 // ---------------------------------------------------
 import React, { useEffect, useState } from 'react';
 import {
@@ -19,17 +20,10 @@ import { testUrl } from '../../api/axiosInstance';
 import { useRoomConnection } from '../../hooks/useRoomConnection';
 import MainContainer from '../../components/MainContainer';
 import { useTranslation } from 'react-i18next';
-import {
-  InterstitialAd,
-  AdEventType,
-  TestIds,
-} from 'react-native-google-mobile-ads';
+import { InterstitialAd, AdEventType } from 'react-native-google-mobile-ads';
+import { ADMOB } from '../../utils/admobConfig';
 
-const adUnitId = __DEV__
-  ? TestIds.INTERSTITIAL
-  : 'ca-app-pub-4770155226662571/1156444855';
-
-const interstitial = InterstitialAd.createForAdRequest(adUnitId);
+const interstitial = InterstitialAd.createForAdRequest(ADMOB.INTERSTITIAL);
 interface Props {
   route: {
     params: {
@@ -239,7 +233,7 @@ const GuessScreen: React.FC<Props> = ({ route }) => {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={color.primary} />
+        <ActivityIndicator size="large" color="#FF8DA1" />
         <Text style={styles.loadingText}>{t('loadingQuestions')}</Text>
       </View>
     );
@@ -287,7 +281,6 @@ const GuessScreen: React.FC<Props> = ({ route }) => {
     <MainContainer>
       <View style={styles.container}>
         {/* Header */}
-
         <View style={styles.header}>
           <Text style={styles.title}>{t('guessYourPartnersAnswers')}</Text>
           <Text style={styles.subtitle}>
@@ -350,17 +343,17 @@ const GuessScreen: React.FC<Props> = ({ route }) => {
                       styles.option,
                       currentGuess?.guessedAnswer === option && {
                         backgroundColor: currentGuess.isCorrect
-                          ? '#22c55e' // green
-                          : '#ef4444', // red
+                          ? '#A8E6CF' // soft mint for correct
+                          : '#FFB7B2', // soft coral for incorrect
                         borderColor: currentGuess.isCorrect
-                          ? '#16a34a'
-                          : '#dc2626',
+                          ? '#7BDFB2'
+                          : '#FF9A8B',
                       },
                       currentGuess &&
                         option === currentGuess.correctAnswer &&
                         !currentGuess.isCorrect && {
-                          backgroundColor: '#22c55e', // green for correct one
-                          borderColor: '#16a34a',
+                          backgroundColor: '#A8E6CF', // correct answer highlight
+                          borderColor: '#7BDFB2',
                         },
                     ]}
                     disabled={lockedQuestions.includes(
@@ -476,10 +469,25 @@ const GuessScreen: React.FC<Props> = ({ route }) => {
 
 export default GuessScreen;
 
+// Romantic color palette (no theme import)
+const romanticColors = {
+  background: '#FFF5F7', // soft blush white
+  surface: '#FFFFFF', // pure white
+  primary: '#FF8DA1', // love pink
+  primaryDark: '#E86F8B', // deeper rose
+  textPrimary: '#5D3A4A', // warm dark rose
+  textSecondary: '#B5838D', // muted rose
+  border: '#FFD1DC', // pale pink
+  progressBg: '#FFE4E8', // very light pink
+  cardShadow: '#FFB7C5', // soft pink shadow
+  correct: '#A8E6CF', // mint green for correct
+  incorrect: '#FFB7B2', // soft coral
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: romanticColors.background,
     padding: 20,
   },
   header: {
@@ -488,38 +496,38 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1E293B',
+    color: romanticColors.textPrimary,
     textAlign: 'center',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#64748B',
+    color: romanticColors.textSecondary,
     textAlign: 'center',
     marginBottom: 16,
   },
   progressBar: {
     height: 6,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: romanticColors.progressBg,
     borderRadius: 3,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#FF4F72',
+    backgroundColor: romanticColors.primary,
     borderRadius: 3,
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: romanticColors.surface,
     borderRadius: 20,
     padding: 24,
     marginBottom: 20,
-    shadowColor: '#000',
+    shadowColor: romanticColors.cardShadow,
     shadowOffset: {
       width: 0,
       height: 4,
     },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.2,
     shadowRadius: 12,
     elevation: 5,
   },
@@ -532,7 +540,7 @@ const styles = StyleSheet.create({
   questionNumber: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#FF4F72',
+    color: romanticColors.primary,
   },
   questionIndicator: {
     flexDirection: 'row',
@@ -542,24 +550,24 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: '#F0D9E0',
   },
   indicatorDotActive: {
-    backgroundColor: '#FF4F72',
+    backgroundColor: romanticColors.primary,
   },
   indicatorDotCompleted: {
-    backgroundColor: '#10B981',
+    backgroundColor: romanticColors.correct,
   },
   questionText: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#1E293B',
+    color: romanticColors.textPrimary,
     lineHeight: 28,
     marginBottom: 12,
   },
   instruction: {
     fontSize: 14,
-    color: '#64748B',
+    color: romanticColors.textSecondary,
     marginBottom: 24,
     fontStyle: 'italic',
   },
@@ -567,15 +575,11 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   option: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#FDF8F9',
     borderRadius: 12,
     padding: 16,
     borderWidth: 2,
-    borderColor: '#E2E8F0',
-  },
-  optionSelected: {
-    backgroundColor: '#FFF1F2',
-    borderColor: '#FF4F72',
+    borderColor: romanticColors.border,
   },
   optionContent: {
     flexDirection: 'row',
@@ -587,33 +591,19 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: '#CBD5E1',
+    borderColor: '#E2B6C0',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  optionIndicatorSelected: {
-    borderColor: '#FF4F72',
-    backgroundColor: '#FF4F72',
-  },
-  optionIndicatorInner: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#FFFFFF',
-  },
   optionText: {
     fontSize: 16,
-    color: '#475569',
+    color: '#6B4B5E',
     fontWeight: '500',
     flex: 1,
   },
-  optionTextSelected: {
-    color: '#FF4F72',
-    fontWeight: '600',
-  },
   noOptionsText: {
     textAlign: 'center',
-    color: '#94A3B8',
+    color: romanticColors.textSecondary,
     fontStyle: 'italic',
     fontSize: 14,
     marginVertical: 20,
@@ -632,47 +622,48 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backButton: {
-    backgroundColor: '#F1F5F9',
+    backgroundColor: '#F0E1E6',
   },
   nextButton: {
-    backgroundColor: '#FF4F72',
+    backgroundColor: romanticColors.primary,
   },
   submitButton: {
-    backgroundColor: '#10B981',
+    backgroundColor: romanticColors.correct,
   },
   navButtonDisabled: {
-    backgroundColor: '#E2E8F0',
+    backgroundColor: '#E8DDE2',
+    opacity: 0.7,
   },
   navButtonText: {
     fontSize: 16,
     fontWeight: '600',
   },
   backButtonText: {
-    color: '#64748B',
+    color: romanticColors.textSecondary,
   },
   nextButtonText: {
     color: '#FFFFFF',
   },
   submitButtonText: {
-    color: '#FFFFFF',
+    color: '#5D3A4A',
   },
   navButtonTextDisabled: {
-    color: '#94A3B8',
+    color: '#BFA6B0',
   },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
+    backgroundColor: romanticColors.background,
   },
   loadingText: {
-    color: '#64748B',
+    color: romanticColors.textSecondary,
     marginTop: 12,
     fontSize: 16,
   },
   noAnswersText: {
     textAlign: 'center',
-    color: '#64748B',
+    color: romanticColors.textSecondary,
     fontSize: 16,
   },
 });

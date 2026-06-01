@@ -1,5 +1,6 @@
 // ---------------------------------------
 // ResultScreen.tsx — Final Results Display
+// Romantic UI with love colors
 // ---------------------------------------
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
@@ -80,26 +81,36 @@ const ResultScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>🎯 {t('finalScores')}</Text>
+      {/* Decorative heart header */}
+      <View style={styles.header}>
+        <Text style={styles.title}>💖 {t('finalScores')} 💖</Text>
+      </View>
 
       {/* Host Card */}
       <View style={styles.card}>
-        <Text style={styles.nameText}>
-          <Text style={styles.roleText}>{t('hostLabel')} </Text>
-          <Text style={styles.highlight}>{result.hostName}</Text>
-        </Text>
+        <View style={styles.cardHeader}>
+          <Text style={styles.roleBadge}>{t('hostLabel')}</Text>
+          <Text style={styles.nameText}>{result.hostName}</Text>
+        </View>
         <View style={styles.scoreContainer}>
           <Text style={styles.scoreLabel}>{t('scoreLabel')}</Text>
           <Text style={styles.scoreValue}>{result.hostScore}</Text>
         </View>
       </View>
 
+      {/* VS divider */}
+      <View style={styles.vsDivider}>
+        <View style={styles.vsLine} />
+        <Text style={styles.vsText}>✨ VS ✨</Text>
+        <View style={styles.vsLine} />
+      </View>
+
       {/* Guest Card */}
       <View style={styles.card}>
-        <Text style={styles.nameText}>
-          <Text style={styles.roleText}>{t('guestLabel')} </Text>
-          <Text style={styles.highlight}>{result.guestName}</Text>
-        </Text>
+        <View style={styles.cardHeader}>
+          <Text style={styles.roleBadge}>{t('guestLabel')}</Text>
+          <Text style={styles.nameText}>{result.guestName}</Text>
+        </View>
         <View style={styles.scoreContainer}>
           <Text style={styles.scoreLabel}>{t('scoreLabel')}</Text>
           <Text style={styles.scoreValue}>{result.guestScore}</Text>
@@ -115,100 +126,146 @@ const ResultScreen: React.FC = () => {
 
 export default ResultScreen;
 
+// Romantic color palette (no external theme)
+const loveColors = {
+  background: '#FFF0F5', // lavender blush – soft romantic
+  cardBg: '#FFFFFF', // pure white
+  primary: '#FF8DA1', // love pink
+  primaryDark: '#E86F8B',
+  textPrimary: '#5D3A4A', // deep rose
+  textSecondary: '#B5838D',
+  accentGold: '#FFD700',
+  correctGreen: '#A8E6CF',
+  shadow: '#FFB7C5',
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: loveColors.background,
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 40,
   },
-  title: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#101031',
+  header: {
     marginBottom: 20,
   },
+  title: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: loveColors.primary,
+    textAlign: 'center',
+    letterSpacing: 1,
+  },
   card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    paddingVertical: 22,
+    backgroundColor: loveColors.cardBg,
+    borderRadius: 28,
+    paddingVertical: 24,
     paddingHorizontal: 24,
-    marginVertical: 14,
+    marginVertical: 10,
     width: '85%',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 5,
+    shadowColor: loveColors.shadow,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    marginBottom: 16,
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
+  roleBadge: {
+    backgroundColor: loveColors.primary,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 40,
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
+    marginRight: 12,
+    overflow: 'hidden',
   },
   nameText: {
-    fontSize: 18,
-    color: '#101031',
-    fontWeight: '600',
-    textAlign: 'center',
-    marginBottom: 12,
-  },
-  roleText: {
-    color: '#6D6D8D',
-    fontWeight: '500',
-    fontSize: 14,
-  },
-  highlight: {
-    color: '#FF4F72',
+    fontSize: 22,
     fontWeight: '700',
+    color: loveColors.textPrimary,
   },
   scoreContainer: {
-    backgroundColor: '#F8F9FA',
-    borderRadius: 50,
-    paddingVertical: 18,
-    paddingHorizontal: 36,
+    backgroundColor: '#FEF4F6',
+    borderRadius: 60,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
     alignItems: 'center',
     justifyContent: 'center',
     minWidth: 140,
+    borderWidth: 1,
+    borderColor: loveColors.primary,
   },
   scoreLabel: {
     fontSize: 14,
-    color: '#6D6D8D',
-    fontWeight: '500',
+    color: loveColors.textSecondary,
+    fontWeight: '600',
     letterSpacing: 1,
   },
   scoreValue: {
-    fontSize: 32,
+    fontSize: 44,
     fontWeight: '800',
-    color: '#4CAF50',
-    marginTop: 6,
+    color: loveColors.correctGreen,
+    marginTop: 4,
     textAlign: 'center',
   },
-  center: {
-    flex: 1,
+  vsDivider: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    marginVertical: 8,
+    width: '60%',
   },
-  errorText: {
-    color: '#888',
-    fontSize: 16,
+  vsLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: loveColors.primary,
+    opacity: 0.5,
+  },
+  vsText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: loveColors.primary,
+    marginHorizontal: 12,
+    letterSpacing: 1,
   },
   playAgainBtn: {
-    backgroundColor: '#FF4F72',
-    borderRadius: 12,
+    backgroundColor: loveColors.primary,
+    borderRadius: 60,
     paddingVertical: 14,
     paddingHorizontal: 40,
     marginTop: 30,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 4,
+    shadowColor: loveColors.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 6,
   },
   playAgainText: {
-    color: '#fff',
-    fontSize: 16,
+    color: '#FFFFFF',
+    fontSize: 18,
     fontWeight: '700',
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
+  },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: loveColors.background,
+  },
+  errorText: {
+    color: loveColors.textSecondary,
+    fontSize: 16,
   },
 });

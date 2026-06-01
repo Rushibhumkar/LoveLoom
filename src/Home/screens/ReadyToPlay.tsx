@@ -1,5 +1,6 @@
 // ------------------------------------------------------
 // ReadyToPlay.tsx — Waiting screen before the quiz starts
+// Modern UI with flexbox only
 // ------------------------------------------------------
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -23,6 +24,7 @@ import { useRoomConnection } from '../../hooks/useRoomConnection';
 import Feather from 'react-native-vector-icons/Feather';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { useTranslation } from 'react-i18next';
+import { colors, spacing } from '../../utils/theme'; // adjust path as needed
 
 interface PlayerData {
   userID: string;
@@ -44,7 +46,6 @@ interface Props {
 
 const ReadyToPlay: React.FC<Props> = ({ route }) => {
   const { roomId, host, guest, role, waitingFor } = route.params;
-  // const drawerNav = useNavigation<DrawerNavigationProp<any>>();
   const navigation = useNavigation<any>();
   const { t } = useTranslation();
   const { socket } = useSocket();
@@ -208,31 +209,33 @@ const ReadyToPlay: React.FC<Props> = ({ route }) => {
     }
   };
 
-  console.log('Parent navigators:', navigation.getParent()?.getState()?.type);
-  console.log('Parentfff:', navigation);
   return (
     <MainContainer>
       <View style={styles.container}>
-        <TouchableOpacity
-          style={{
-            position: 'absolute',
-            left: 16,
-            // backgroundColor: 'red',
-            top: 12,
-          }}
-          onPress={() => {
-            navigation
-              .getParent('DrawerRoot')
-              ?.dispatch(DrawerActions.openDrawer());
-          }}
-        >
-          <Feather name="menu" size={28} color="#0b0e1eff" />
-        </TouchableOpacity>
+        <StatusBar
+          barStyle="light-content"
+          backgroundColor={colors.background}
+        />
 
-        <StatusBar barStyle={'dark-content'} backgroundColor={'#fefafc'} />
-        <Text style={styles.title}>{t('readyToPlayTitle')}</Text>
+        {/* Header with menu button */}
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => {
+              navigation
+                .getParent('DrawerRoot')
+                ?.dispatch(DrawerActions.openDrawer());
+            }}
+          >
+            <Feather name="menu" size={24} color={colors.textPrimary} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>{t('readyToPlayTitle')}</Text>
+          <View style={{ width: 32 }} />
+        </View>
+
         <Text style={styles.subtitle}>{t('readyToPlaySubtitle')}</Text>
 
+        {/* VS Card */}
         <View style={styles.vsCard}>
           <View style={styles.player}>
             <Image
@@ -243,11 +246,12 @@ const ReadyToPlay: React.FC<Props> = ({ route }) => {
               }}
               style={styles.avatar}
             />
-
             <Text style={styles.name}>{hostData.name || t('host')}</Text>
           </View>
 
-          <Text style={styles.vsText}>{t('vs')}</Text>
+          <View style={styles.vsBadge}>
+            <Text style={styles.vsText}>{t('vs')}</Text>
+          </View>
 
           <View style={styles.player}>
             <Image
@@ -259,29 +263,48 @@ const ReadyToPlay: React.FC<Props> = ({ route }) => {
               style={styles.avatar}
             />
             <Text style={styles.name}>
-              {waitingFor === 'guest' ? t('guest') : ''}
+              {waitingFor === 'guest'
+                ? t('guest')
+                : guestData.name || t('guest')}
             </Text>
           </View>
         </View>
 
+        {/* Room ID Section (Host only) */}
         {role === 'host' && (
-          <View style={styles.roomContainer}>
-            <Text style={styles.roomText}>
-              {t('roomIdLabel')}: {roomId}
-            </Text>
+          <View style={styles.roomCard}>
+            <Text style={styles.roomLabel}>{t('roomIdLabel')}</Text>
+            <Text style={styles.roomCode}>{roomId}</Text>
 
-            <TouchableOpacity onPress={handleCopy} style={styles.actionBtn}>
-              <Text style={styles.btnText}>{t('copyCode')}</Text>
-              <Ionicons name="copy-outline" size={18} color="#fff" />
-            </TouchableOpacity>
+            <View style={styles.buttonRow}>
+              <TouchableOpacity
+                onPress={handleCopy}
+                style={styles.actionButton}
+              >
+                <Ionicons
+                  name="copy-outline"
+                  size={18}
+                  color={colors.textPrimary}
+                />
+                <Text style={styles.buttonText}>{t('copyCode')}</Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity onPress={handleShare} style={styles.actionBtn}>
-              <Text style={styles.btnText}>{t('shareCode')}</Text>
-              <Ionicons name="share-social-outline" size={18} color="#fff" />
-            </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleShare}
+                style={styles.actionButton}
+              >
+                <Ionicons
+                  name="share-social-outline"
+                  size={18}
+                  color={colors.textPrimary}
+                />
+                <Text style={styles.buttonText}>{t('shareCode')}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
 
+        {/* Waiting Message */}
         <Text style={styles.waitText}>{waitingText}</Text>
       </View>
     </MainContainer>
@@ -291,93 +314,152 @@ const ReadyToPlay: React.FC<Props> = ({ route }) => {
 export default ReadyToPlay;
 
 // ------------------------------------------------------
-// Styles
+// Modern Styles (flexbox only, no absolute positioning)
 // ------------------------------------------------------
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fefafc',
+    backgroundColor: colors.background,
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
+    paddingTop: 12,
   },
-  title: {
-    fontSize: 26,
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 16,
+  },
+  menuButton: {
+    padding: 8,
+    borderRadius: 30,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+  },
+  headerTitle: {
+    fontSize: 22,
     fontWeight: '700',
-    color: '#101031',
-    marginBottom: 5,
+    color: colors.textPrimary,
+    letterSpacing: 0.5,
   },
   subtitle: {
-    fontSize: 14,
-    color: '#707070',
-    marginBottom: 30,
+    fontSize: 15,
+    color: colors.textSecondary,
+    marginBottom: 40,
+    textAlign: 'center',
   },
-  roomContainer: {
-    alignItems: 'center',
-    marginBottom: 25,
-    backgroundColor: '#ffffff',
-    paddingVertical: 15,
-    paddingHorizontal: 40,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-
-  roomText: {
-    fontSize: 16,
-    color: '#101031',
-    fontWeight: '700',
-    marginBottom: 12,
-  },
-
-  actionBtn: {
-    flexDirection: 'row',
-    backgroundColor: '#a878c7ff',
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 24,
-    marginBottom: 10,
-    width: '100%',
-    gap: 12,
-  },
-
-  btnText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-
   vsCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#8e8ed9',
-    borderRadius: 15,
-    paddingVertical: 15,
+    justifyContent: 'space-between',
+    backgroundColor: colors.backgroundLight,
+    borderRadius: 28,
+    paddingVertical: 24,
     paddingHorizontal: 20,
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
-    elevation: 3,
-    marginBottom: 40,
-    marginTop: 60,
+    width: '100%',
+    marginBottom: 32,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 6,
   },
-  player: { alignItems: 'center', marginHorizontal: 10 },
+  player: {
+    alignItems: 'center',
+    flex: 1,
+  },
   avatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    borderWidth: 2,
-    borderColor: '#fff',
-    marginBottom: 8,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 3,
+    borderColor: colors.primary,
+    marginBottom: 12,
+    backgroundColor: colors.surface,
   },
-  name: { color: '#fff', fontSize: 14, fontWeight: '600' },
+  name: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.textPrimary,
+    textAlign: 'center',
+  },
+  vsBadge: {
+    backgroundColor: colors.primary,
+    borderRadius: 40,
+    width: 48,
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 8,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
+  },
   vsText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#fff',
-    marginHorizontal: 12,
+    fontSize: 20,
+    fontWeight: '800',
+    color: colors.textPrimary,
   },
-  waitText: { color: '#888', fontSize: 13, marginTop: 10 },
+  roomCard: {
+    width: '100%',
+    backgroundColor: colors.surface,
+    borderRadius: 24,
+    padding: 20,
+    alignItems: 'center',
+    marginBottom: 24,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  roomLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: colors.textSecondary,
+    marginBottom: 6,
+  },
+  roomCode: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: colors.primary,
+    letterSpacing: 2,
+    marginBottom: 20,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    gap: 12,
+  },
+  actionButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: colors.primary,
+    borderRadius: 40,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  buttonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.textPrimary,
+  },
+  waitText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginTop: 8,
+  },
 });

@@ -137,81 +137,76 @@ const FinalScreen: React.FC<FinalScreenProps> = ({ onPrev, onLogin }) => {
   }, []);
 
   return (
-    <MainContainer>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1 }}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{ flex: 1 }}
+    >
+      <ScrollView
+        contentContainerStyle={[styles.container, { width: screenWidth }]}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        <ScrollView
-          contentContainerStyle={[styles.container, { width: screenWidth }]}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Header Section */}
-          <View style={styles.header}>
-            <Text style={styles.logo}>
-              Cupid<Text style={styles.logoAccent}>Flow</Text>
+        {/* Header Section */}
+        <View style={styles.header}>
+          <Text style={styles.logo}>
+            Love<Text style={styles.logoAccent}>Loom</Text>
+          </Text>
+          <Text style={styles.tagline}>{t('tagline')}</Text>
+        </View>
+
+        {/* Illustration Section */}
+        <View style={styles.illustrationContainer}>
+          <Image
+            source={require('../../assets/images/onboarding3.png')}
+            style={styles.illustration}
+            resizeMode="contain"
+          />
+        </View>
+
+        {/* Footer Section */}
+        <View style={styles.footer}>
+          <View style={styles.footerContent}>
+            <Text style={styles.welcomeText}>
+              {t('madeWith')} <Text style={styles.heart}>💖</Text>
+              {'\n'}
+              {t('forAmazing')}{' '}
+              <Text style={styles.highlight}>{t('couples')}</Text>
             </Text>
-            <Text style={styles.tagline}>{t('tagline')}</Text>
-          </View>
 
-          {/* Illustration Section */}
-          <View style={styles.illustrationContainer}>
-            <Image
-              source={require('../../assets/images/onboarding3.png')}
-              style={styles.illustration}
-              resizeMode="contain"
-            />
-          </View>
+            {/* Login Buttons Container */}
+            <View style={styles.buttonsContainer}>
+              {/* Credentials Login Button */}
 
-          {/* Footer Section */}
-          <View style={styles.footer}>
-            <View style={styles.footerContent}>
-              <Text style={styles.welcomeText}>
-                {t('madeWith')} <Text style={styles.heart}>💖</Text>
-                {'\n'}
-                {t('forAmazing')}{' '}
-                <Text style={styles.highlight}>{t('couples')}</Text>
-              </Text>
-
-              {/* Login Buttons Container */}
-              <View style={styles.buttonsContainer}>
-                {/* Credentials Login Button */}
-
-                {/* Google Login Button */}
-                <TouchableOpacity
-                  style={[
-                    styles.googleButton,
-                    loading && styles.buttonDisabled,
-                  ]}
-                  onPress={handleGoogleLogin}
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <ActivityIndicator color="#fff" size="small" />
-                  ) : (
-                    <View style={styles.buttonContent}>
-                      <AntDesign name="google" size={20} color="#fff" />
-                      <Text style={styles.googleText}>
-                        {t('continueWithGoogle')}
-                      </Text>
-                    </View>
-                  )}
-                </TouchableOpacity>
-              </View>
+              {/* Google Login Button */}
+              <TouchableOpacity
+                style={[styles.googleButton, loading && styles.buttonDisabled]}
+                onPress={handleGoogleLogin}
+                disabled={loading}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <View style={styles.buttonContent}>
+                    <AntDesign name="google" size={20} color="#fff" />
+                    <Text style={styles.googleText}>
+                      {t('continueWithGoogle')}
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
             </View>
           </View>
+        </View>
 
-          {/* Username Login Bottom Sheet */}
-          {/* {showLoginBottom && (
+        {/* Username Login Bottom Sheet */}
+        {/* {showLoginBottom && (
             <UsernameLoginBottom
               onClose={() => setShowLoginBottom(false)}
               onLogin={onLogin}
             />
           )} */}
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </MainContainer>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 

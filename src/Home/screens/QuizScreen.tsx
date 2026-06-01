@@ -1,5 +1,6 @@
 // ----------------------------------------
 // QuizScreen.tsx — Main question flow logic
+// Modern UI with flexbox only
 // ----------------------------------------
 import React, { useEffect, useState } from 'react';
 import {
@@ -22,6 +23,7 @@ import { useRoomConnection } from '../../hooks/useRoomConnection';
 import { sizes } from '../../const';
 import { useTranslation } from 'react-i18next';
 import { myConsole } from '../../utils/myConsole';
+import { colors, spacing } from '../../utils/theme';
 
 interface Question {
   question_id: string;
@@ -89,15 +91,10 @@ const QuizScreen: React.FC<Props> = ({ route }) => {
     },
   });
 
-  // in useEffect(() => { if (!socket) return; ... }, [socket])
   useEffect(() => {
     if (!socket) return;
     console.log('🧩 Setting up both_finished listener for socket:', socket.id);
     socket.on('both_finished', payload => {
-      // console.log(
-      //   '🎯 Socket both_finished triggered:',
-      //   JSON.stringify(payload, null, 2),
-      // );
       navigation.navigate('GuessScreen', {
         roomId,
         userID,
@@ -175,40 +172,6 @@ const QuizScreen: React.FC<Props> = ({ route }) => {
     }
   };
 
-  // const handleAnswer = (q: Question, option: string) => {
-  //   const payload = {
-  //     roomId,
-  //     userID,
-  //     question_id: q.question_id,
-  //     answer: option,
-  //     questionIndex: index + 1,
-  //   };
-  //   emit('submit_answer', payload, res => {
-  //     console.log('Answer submitted:', res);
-  //   });
-  //   setAnswers(prev => [...prev, payload]);
-  //   if (index + 1 < questions.length) {
-  //     setIndex(index + 1);
-  //   } else {
-  //     setFinished(true);
-  //     console.log(
-  //       '✅ All questions answered — waiting for server to detect both finished',
-  //     );
-
-  //     // Don't emit finish_game, just you_finished (like web)
-  //     emit('you_finished', {
-  //       roomId,
-  //       userID,
-  //       message: 'You completed all questions. Wait for partner.',
-  //     });
-
-  //     // Add debug line
-  //     console.log(
-  //       '📤 Emitted you_finished event -> waiting for both_finished from server',
-  //     );
-  //   }
-  // };
-
   const handleAnswer = (q: Question, option: string) => {
     const payload = {
       roomId,
@@ -237,134 +200,90 @@ const QuizScreen: React.FC<Props> = ({ route }) => {
   };
 
   const currentQ = questions[index];
+  myConsole('currentQqq', currentQ);
 
   if (!currentQ) return null;
 
   myConsole('questionsss', questions);
 
-  const options = currentQ.question_options;
+  const options =
+    typeof currentQ.question_options === 'string'
+      ? JSON.parse(currentQ.question_options)
+      : currentQ.question_options;
 
   if (!questions.length)
     return (
       <View style={styles.center}>
-        <Text>Loading questions...</Text>
+        <Text style={{ color: colors.textPrimary }}>Loading questions...</Text>
       </View>
     );
 
-  myConsole('currentQ.question_optionsss', currentQ.question_options);
   return (
     <MainContainer>
-      <ScrollView contentContainerStyle={styles.container}>
-        <StatusBar backgroundColor={'#1b2038'} barStyle={'light-content'} />
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'flex-start',
-            justifyContent: 'space-between',
-            // backgroundColor: 'red',
-          }}
-        >
-          <View>
-            <Text
-              style={{ color: '#c3c3c3ff', fontSize: 16, fontWeight: '600' }}
-            >
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <StatusBar
+          backgroundColor={colors.background}
+          barStyle="light-content"
+        />
+
+        {/* Header: Progress and Category */}
+        <View style={styles.header}>
+          <View style={styles.progressColumn}>
+            <Text style={styles.progressNumber}>
               {myProgress}/{totalQuestions}
             </Text>
-            <Text
-              style={{ color: '#c3c3c3ff', fontSize: 16, fontWeight: '600' }}
-            >
-              {t('you')}
-            </Text>
+            <Text style={styles.progressLabel}>{t('you')}</Text>
           </View>
-          <Text
-            style={{
-              color: '#FF4F72',
-              fontWeight: '600',
-              fontSize: 22,
-              width: '60%',
-              textAlign: 'center',
-            }}
-          >
-            {selectedCategory || ''}
-          </Text>
-          <View>
-            <Text
-              style={{
-                color: '#c3c3c3ff',
-                fontSize: 16,
-                fontWeight: '600',
-                textAlign: 'right',
-              }}
-            >
+
+          <Text style={styles.categoryTitle}>{selectedCategory || ''}</Text>
+
+          <View style={[styles.progressColumn, { alignItems: 'flex-end' }]}>
+            <Text style={styles.progressNumber}>
               {partnerProgress}/{totalQuestions}
             </Text>
-            <Text
-              style={{ color: '#c3c3c3ff', fontSize: 16, fontWeight: '600' }}
-            >
-              {t('partner')}
-            </Text>
+            <Text style={styles.progressLabel}>{t('partner')}</Text>
           </View>
         </View>
 
-        <View
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            width: sizes.width,
-          }}
-        >
-          <Image
-            source={require('../../assets/icons/hearts.jpg')}
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              right: 0,
-              zIndex: 40,
-              height: 120,
-              width: 120,
-            }}
-          />
-          <Text style={styles.question}>{currentQ.question_text}</Text>
-          <View
-            style={{
-              backgroundColor: '#f5f5f5',
-              borderTopLeftRadius: 32,
-              borderTopRightRadius: 32,
-              paddingHorizontal: 24,
-              paddingVertical: finished ? sizes.height / 8 : sizes.height / 6,
-            }}
-          >
-            {options.map((opt: string, i: number) => (
-              <TouchableOpacity
-                key={i}
+        {/* Question Section */}
+        <View style={styles.questionSection}>
+          <Text style={styles.questionText}>{currentQ.question_text}</Text>
+        </View>
+
+        {/* Options Card (bottom part) */}
+        <View style={styles.optionsCard}>
+          {options?.map((opt: string, i: number) => (
+            <TouchableOpacity
+              key={i}
+              style={[
+                styles.optionButton,
+                selectedOption === opt && styles.optionButtonSelected,
+              ]}
+              onPress={() => {
+                setSelectedOption(opt);
+                handleAnswer(currentQ, opt);
+              }}
+              activeOpacity={0.7}
+            >
+              <Text
                 style={[
-                  styles.option,
-                  selectedOption === opt && {
-                    backgroundColor: '#f79aadff',
-                    borderColor: '#f8bfcaff',
-                  },
+                  styles.optionText,
+                  selectedOption === opt && styles.optionTextSelected,
                 ]}
-                onPress={() => {
-                  setSelectedOption(opt);
-                  handleAnswer(currentQ, opt);
-                }}
               >
-                <Text
-                  style={[
-                    styles.optText,
-                    selectedOption === opt && { color: '#fff' },
-                  ]}
-                >
-                  {opt}
-                </Text>
-              </TouchableOpacity>
-            ))}
-            {finished && (
-              <Text style={styles.waitText}>
-                🎉 {t('answeredEverything')} ⏳ {t('waitingForPartner')} 🤝
+                {opt}
               </Text>
-            )}
-          </View>
+            </TouchableOpacity>
+          ))}
+
+          {finished && (
+            <Text style={styles.waitText}>
+              🎉 {t('answeredEverything')} ⏳ {t('waitingForPartner')} 🤝
+            </Text>
+          )}
         </View>
       </ScrollView>
     </MainContainer>
@@ -374,61 +293,123 @@ const QuizScreen: React.FC<Props> = ({ route }) => {
 export default QuizScreen;
 
 const styles = StyleSheet.create({
-  container: {
+  scrollContent: {
     flexGrow: 1,
-    padding: 20,
-    backgroundColor: '#1b2038',
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 24,
+    backgroundColor: colors.background,
   },
-  progress: {
-    fontSize: 15,
-    color: '#FF4F72',
-    marginBottom: 16,
-    fontWeight: '600',
-    textAlign: 'center',
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 32,
   },
-  waitText: {
-    marginTop: 30,
-    textAlign: 'center',
-    color: '#FF4F72',
-    fontSize: 15,
-    letterSpacing: 0.4,
-    zIndex: 80,
+  progressColumn: {
+    flexShrink: 1,
   },
-
-  question: {
-    marginTop: 40,
-    fontSize: 24,
+  progressNumber: {
+    fontSize: 18,
     fontWeight: '700',
-    color: '#fff',
-    marginBottom: 25,
-    lineHeight: 28,
-    paddingHorizontal: 22,
+    color: colors.textSecondary,
+    textAlign: 'center',
   },
-
-  option: {
-    backgroundColor: '#ffffff',
-    borderWidth: 2,
-    borderColor: '#f8a3b4ff',
-    borderRadius: 22,
-    paddingVertical: 16,
-    paddingHorizontal: 14,
+  progressLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: colors.textSecondary,
+    marginTop: 4,
+  },
+  categoryTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: colors.primary,
+    textAlign: 'center',
+    flexShrink: 1,
+    paddingHorizontal: 8,
+  },
+  questionSection: {
+    flex: 1,
+    justifyContent: 'center',
+    marginVertical: 24,
+  },
+  questionText: {
+    fontSize: 26,
+    fontWeight: '700',
+    color: colors.textPrimary,
+    lineHeight: 36,
+    textAlign: 'center',
+    letterSpacing: 0.3,
+  },
+  optionsCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 28,
+    paddingHorizontal: 20,
+    paddingTop: 28,
+    paddingBottom: 20,
+    marginTop: 'auto', // pushes card to bottom
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  optionButton: {
+    backgroundColor: colors.surface,
+    borderWidth: 1.5,
+    borderColor: colors.border,
+    borderRadius: 60,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
     marginBottom: 14,
-    shadowColor: '#FF4F72',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  optionButtonSelected: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
     shadowOpacity: 0.2,
     shadowRadius: 6,
-    elevation: 3,
-    transition: 'all 0.3s',
+    elevation: 4,
   },
-  optText: {
-    color: '#101031',
-    fontWeight: '700',
-    textAlign: 'center',
+  optionText: {
     fontSize: 16,
-    letterSpacing: 0.3,
+    fontWeight: '600',
+    color: colors.textDark,
+    textAlign: 'center',
+    letterSpacing: 0.2,
+  },
+  optionTextSelected: {
+    color: colors.textPrimary,
+  },
+  waitText: {
+    marginTop: 16,
+    marginBottom: 12,
+    textAlign: 'center',
+    color: colors.primary,
+    fontSize: 15,
+    fontWeight: '600',
+    letterSpacing: 0.4,
+  },
+  heartContainer: {
+    alignItems: 'flex-end',
+    marginTop: 8,
+  },
+  heartsImage: {
+    width: 80,
+    height: 80,
+    opacity: 0.8,
   },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: colors.background,
   },
 });

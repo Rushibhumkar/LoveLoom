@@ -32,68 +32,66 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ onNext }) => {
   };
 
   return (
-    <MainContainer>
-      <View style={{ width: screenWidth }}>
-        <ImageBackground
-          source={{
-            uri: 'https://images.pexels.com/photos/1181695/pexels-photo-1181695.jpeg?auto=compress&cs=tinysrgb&w=1600',
-          }}
-          style={styles.bgImage}
-          resizeMode="cover"
-        >
-          <View style={styles.overlay}>
-            <View style={styles.logoContainer}>
-              <Text style={styles.logo}>
-                Love<Text style={styles.logoAccent}>Loom</Text>
-              </Text>
-              <View style={styles.heartIcon}>
-                <Feather name="heart" size={20} color="#FF6B8B" />
-              </View>
-            </View>
-            <View style={styles.textGroup}>
-              <Text style={styles.mainTitle}>DEEPEN YOUR BOND</Text>
-              <Text style={styles.subTitle}>Spin, laugh, love together 💖</Text>
+    <View style={{ width: screenWidth }}>
+      <ImageBackground
+        source={{
+          uri: 'https://images.pexels.com/photos/2253870/pexels-photo-2253870.jpeg?auto=compress&cs=tinysrgb&w=1600',
+        }}
+        style={styles.bgImage}
+        resizeMode="cover"
+      >
+        <View style={styles.overlay}>
+          <View style={styles.logoContainer}>
+            <Text style={styles.logo}>
+              Love<Text style={styles.logoAccent}>Loom</Text>
+            </Text>
+            <View style={styles.heartIcon}>
+              <Feather name="heart" size={20} color="#FF6B8B" />
             </View>
           </View>
-          <TouchableOpacity style={styles.nextBtn} onPress={onNext}>
-            <Feather name="arrow-right" size={28} color="#fff" />
-          </TouchableOpacity>
-        </ImageBackground>
-
-        <Modal visible={isLangModalVisible} transparent animationType="fade">
-          <View style={styles.modalBackdrop}>
-            <View style={styles.modalContainer}>
-              <Feather
-                name="heart"
-                size={28}
-                color="#FF6B8B"
-                style={styles.modalHeart}
-              />
-              <Text style={styles.modalTitle}>Choose Your Language</Text>
-              <Text style={styles.modalSubtitle}>
-                Select your preferred language to begin
-              </Text>
-
-              <TouchableOpacity
-                style={[styles.langButton, { marginBottom: 12 }]}
-                onPress={() => changeLanguage('en')}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.langText}>English</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.langButton}
-                onPress={() => changeLanguage('hi')}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.langText}>हिंदी</Text>
-              </TouchableOpacity>
-            </View>
+          <View style={styles.textGroup}>
+            <Text style={styles.mainTitle}>DEEPEN YOUR BOND</Text>
+            <Text style={styles.subTitle}>Spin, laugh, love together 💖</Text>
           </View>
-        </Modal>
-      </View>
-    </MainContainer>
+        </View>
+        <TouchableOpacity style={styles.nextBtn} onPress={onNext}>
+          <Feather name="arrow-right" size={28} color="#fff" />
+        </TouchableOpacity>
+      </ImageBackground>
+
+      <Modal visible={isLangModalVisible} transparent animationType="fade">
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalContainer}>
+            <Feather
+              name="heart"
+              size={28}
+              color="#FF6B8B"
+              style={styles.modalHeart}
+            />
+            <Text style={styles.modalTitle}>Choose Your Language</Text>
+            <Text style={styles.modalSubtitle}>
+              Select your preferred language to begin
+            </Text>
+
+            <TouchableOpacity
+              style={[styles.langButton, { marginBottom: 12 }]}
+              onPress={() => changeLanguage('en')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.langText}>English</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.langButton}
+              onPress={() => changeLanguage('hi')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.langText}>हिंदी</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </View>
   );
 };
 
@@ -101,7 +99,7 @@ export default IntroScreen;
 
 const styles = StyleSheet.create({
   bgImage: {
-    height: '100%',
+    flex: 1,
     width: screenWidth,
     justifyContent: 'flex-end',
   },

@@ -37,4 +37,5 @@ export const spacing = {
   buttonSize: 60,
   buttonBorderRadius: 30,
   iconSize: 28,
+  borderRadius: 16,
 };

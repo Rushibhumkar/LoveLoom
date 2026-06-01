@@ -23,19 +23,8 @@ import { myConsole } from '../../utils/myConsole';
 import { useRoomConnection } from '../../hooks/useRoomConnection';
 import Feather from 'react-native-vector-icons/Feather';
 import { useTranslation } from 'react-i18next';
-import {
-  InterstitialAd,
-  AdEventType,
-  TestIds,
-} from 'react-native-google-mobile-ads';
-
-const adUnitId = __DEV__
-  ? TestIds.INTERSTITIAL
-  : 'ca-app-pub-4770155226662571/1156444855';
-
-const interstitial = InterstitialAd.createForAdRequest(adUnitId, {
-  requestNonPersonalizedAdsOnly: true,
-});
+import { BannerAd, BannerAdSize } from 'react-native-google-mobile-ads';
+import { ADMOB } from '../../utils/admobConfig';
 
 interface Props {
   route: {
@@ -87,19 +76,6 @@ const WheelScreen: React.FC<Props> = ({ route }) => {
         setLoading(false);
       }
     })();
-  }, []);
-
-  useEffect(() => {
-    const unsubscribe = interstitial.addAdEventListener(
-      AdEventType.LOADED,
-      () => {
-        console.log('Ad Loaded');
-      },
-    );
-
-    interstitial.load();
-
-    return unsubscribe;
   }, []);
 
   // ✅ Socket listeners
@@ -181,10 +157,6 @@ const WheelScreen: React.FC<Props> = ({ route }) => {
       if (res?.success) {
         ToastAndroid.show(t('youAreReady'), ToastAndroid.SHORT);
 
-        if (interstitial.loaded) {
-          interstitial.show();
-        }
-
         navigation.navigate('QuizScreen', {
           roomId,
           userID,
@@ -246,7 +218,10 @@ const WheelScreen: React.FC<Props> = ({ route }) => {
 
   return (
     <MainContainer>
-      <StatusBar barStyle={'dark-content'} backgroundColor={'#a8d8ff'} />
+      <StatusBar
+        barStyle={'dark-content'}
+        backgroundColor={'rgb(255, 177, 251)'}
+      />
       <View style={styles.container}>
         <TouchableOpacity
           style={{
@@ -269,14 +244,13 @@ const WheelScreen: React.FC<Props> = ({ route }) => {
             ref={wheelRef}
             segments={segments}
             segColors={[
-              '#FF69B4',
-              '#BA55D3',
-              '#87CEEB',
-              // '#87CEFA',
-              '#FFB6C1',
-              '#DDA0DD',
-              '#F0E68C',
-              '#FFA07A',
+              '#FF6B8B', // vibrant love pink
+              '#FF8FA3', // soft romantic pink
+              '#E76F8E', // deep rose
+              '#D988B9', // orchid bloom
+              '#F4A261', // warm peach glow
+              '#E9B5B5', // gentle blush
+              '#C08497', // dusty rose
             ]}
             duration={4500}
             onFinished={seg => {
@@ -305,6 +279,21 @@ const WheelScreen: React.FC<Props> = ({ route }) => {
           </TouchableOpacity>
         )}
       </View>
+      <View
+        style={{
+          justifyContent: 'center',
+          alignItems: 'center',
+          paddingBottom: 20,
+        }}
+      >
+        <BannerAd
+          unitId={ADMOB.BANNER}
+          size={BannerAdSize.BANNER}
+          requestOptions={{
+            requestNonPersonalizedAdsOnly: true,
+          }}
+        />
+      </View>
     </MainContainer>
   );
 };
@@ -314,7 +303,7 @@ export default WheelScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#a8d8ff',
+    backgroundColor: 'rgb(255, 177, 251)',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 30,

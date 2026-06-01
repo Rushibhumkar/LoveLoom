@@ -71,7 +71,7 @@ const DrawerContent: React.FC<Props> = ({ onLogout }) => {
 
       {/* Menu items */}
 
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={styles.menuItem}
         // onPress={() =>
         //   navigation.navigate('Home', { screen: 'SettingsScreen' })
@@ -99,7 +99,7 @@ const DrawerContent: React.FC<Props> = ({ onLogout }) => {
       >
         <MaterialIcons name="list-alt" size={20} color="#FF4F72" />
         <Text style={styles.menuText}>{t('profile')}</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <TouchableOpacity
         style={styles.menuItem}

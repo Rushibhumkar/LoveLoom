@@ -1,6 +1,8 @@
 // --------------------------------------------------------
 // HomeScreen.tsx — entry screen for room creation / joining
+// LoveLoom Theme applied
 // --------------------------------------------------------
+
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -14,6 +16,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Keyboard,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import {
@@ -29,40 +32,33 @@ import { getUserData } from '../api/userApi';
 import { useRoomConnection } from '../hooks/useRoomConnection';
 import { useTranslation } from 'react-i18next';
 import { myConsole } from '../utils/myConsole';
-import {
-  InterstitialAd,
-  AdEventType,
-  TestIds,
-} from 'react-native-google-mobile-ads';
-
-const adUnitId = __DEV__
-  ? TestIds.INTERSTITIAL
-  : 'ca-app-pub-4770155226662571/1156444855';
-
-const interstitial = InterstitialAd.createForAdRequest(adUnitId, {
-  requestNonPersonalizedAdsOnly: true,
-});
+import { colors, spacing } from '../utils/theme';
+import { BannerAd, BannerAdSize } from 'react-native-google-mobile-ads';
+import { ADMOB } from '../utils/admobConfig';
 
 const HomeScreen = () => {
   const { t } = useTranslation();
   const [roomCode, setRoomCode] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const navigation = useNavigation<DrawerNavigationProp<any>>();
   const { emit } = useSocket();
 
   const [player, setPlayer] = useState<any>(null);
 
   useEffect(() => {
-    const unsubscribe = interstitial.addAdEventListener(
-      AdEventType.LOADED,
-      () => {
-        console.log('Ad Loaded');
-      },
-    );
+    const showSub = Keyboard.addListener('keyboardDidShow', () => {
+      setIsKeyboardVisible(true);
+    });
 
-    interstitial.load();
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => {
+      setIsKeyboardVisible(false);
+    });
 
-    return unsubscribe;
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
   }, []);
 
   useEffect(() => {
@@ -115,9 +111,6 @@ const HomeScreen = () => {
       setLoading(false);
 
       if (res?.success) {
-        if (interstitial.loaded) {
-          interstitial.show();
-        }
         console.log('[ROOM] Room created successfully =>', res.roomId);
         await AsyncStorage.multiSet([
           ['roomId', res.roomId],
@@ -167,9 +160,6 @@ const HomeScreen = () => {
       setLoading(false);
 
       if (res?.success) {
-        if (interstitial.loaded) {
-          interstitial.show();
-        }
         console.log('[ROOM] Joined room successfully =>', roomCode.trim());
         await AsyncStorage.multiSet([
           ['roomId', roomCode.trim()],
@@ -198,46 +188,47 @@ const HomeScreen = () => {
 
   useRoomConnection('host', player?.userID || '');
 
-  // 🔹 UI
+  // 🔹 UI with LoveLoom Theme
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor="#101031" />
+      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
 
-      {/* ✅ Added wrapper for keyboard handling */}
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
+        keyboardVerticalOffset={20}
       >
         <ScrollView
           contentContainerStyle={{ flexGrow: 1 }}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
         >
           <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
               <TouchableOpacity
-                style={{ position: 'absolute', left: 0 }}
+                style={styles.menuButton}
                 onPress={() => {
-                  // console.log('[UI] Drawer menu opened');
                   navigation.dispatch(DrawerActions.openDrawer());
                 }}
               >
-                <Feather name="menu" size={28} color="#fff" />
+                <Feather name="menu" size={28} color={colors.textPrimary} />
               </TouchableOpacity>
               <Text style={styles.logo}>
-                Cupid<Text style={styles.logoAccent}>Flow</Text>
+                Love<Text style={styles.logoAccent}>Loom</Text>
               </Text>
+              {/* Empty view to balance the header */}
+              <View style={{ width: 28 }} />
             </View>
 
             {/* Illustration */}
             <Image
               source={{
-                uri: 'https://img.freepik.com/free-vector/boy-girl-with-chat-bubble-message_24877-53848.jpg?semt=ais_hybrid&w=740&q=80',
+                uri: 'https://images.pexels.com/photos/2253870/pexels-photo-2253870.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
               }}
               resizeMode="contain"
               style={styles.image}
             />
-
             <Text style={styles.title}>{t('connectWithPartner')}</Text>
 
             {/* Actions */}
@@ -245,7 +236,7 @@ const HomeScreen = () => {
               <Text style={styles.subText}>{t('generateRoomHint')}</Text>
 
               <TouchableOpacity
-                style={[styles.createRoomBtn, loading && { opacity: 0.6 }]}
+                style={[styles.createRoomBtn, loading && styles.buttonDisabled]}
                 onPress={handleCreateRoom}
                 activeOpacity={0.8}
                 disabled={loading}
@@ -257,24 +248,25 @@ const HomeScreen = () => {
 
               <View style={styles.orContainer}>
                 <View style={styles.line} />
+                <Feather name="heart" size={14} color={colors.primary} />
                 <Text style={styles.orText}>{t('or')}</Text>
+                <Feather name="heart" size={14} color={colors.primary} />
                 <View style={styles.line} />
               </View>
 
               <TextInput
                 value={roomCode}
                 onChangeText={text => {
-                  // console.log('[INPUT] Room code changed =>', text);
                   setRoomCode(text);
                 }}
                 placeholder={t('roomCodePlaceholder')}
-                placeholderTextColor="#A5A5B5"
+                placeholderTextColor={colors.textSecondary}
                 style={styles.input}
                 textAlign="center"
               />
 
               <TouchableOpacity
-                style={[styles.joinRoomBtn, loading && { opacity: 0.6 }]}
+                style={[styles.joinRoomBtn, loading && styles.buttonDisabled]}
                 onPress={handleJoinRoom}
                 activeOpacity={0.8}
                 disabled={loading}
@@ -288,6 +280,23 @@ const HomeScreen = () => {
             </View>
           </View>
         </ScrollView>
+        {!isKeyboardVisible && (
+          <View
+            style={{
+              justifyContent: 'center',
+              alignItems: 'center',
+              paddingBottom: 20,
+            }}
+          >
+            <BannerAd
+              unitId={ADMOB.BANNER}
+              size={BannerAdSize.BANNER}
+              requestOptions={{
+                requestNonPersonalizedAdsOnly: true,
+              }}
+            />
+          </View>
+        )}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -296,72 +305,123 @@ const HomeScreen = () => {
 export default HomeScreen;
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#101031' },
-  container: { flex: 1, alignItems: 'center' },
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  container: {
+    flex: 1,
+    alignItems: 'center',
+  },
   header: {
     width: '90%',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     marginTop: 10,
+  },
+  menuButton: {
+    padding: 4,
   },
   logo: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#fff',
+    color: colors.textPrimary,
     textAlign: 'center',
-    alignSelf: 'center',
   },
-  logoAccent: { color: '#FF4F72' },
-  image: { width: '85%', height: 220, marginTop: 30 },
+  logoAccent: {
+    color: colors.primary,
+  },
+  image: {
+    width: '85%',
+    height: 220,
+    marginTop: 30,
+    borderRadius: 20,
+  },
   title: {
-    color: '#fff',
+    color: colors.textPrimary,
     fontSize: 18,
     fontWeight: '600',
     textAlign: 'center',
     marginTop: 25,
   },
-  section: { marginTop: 40, width: '85%', alignItems: 'center' },
+  section: {
+    marginTop: 40,
+    width: '85%',
+    alignItems: 'center',
+  },
   subText: {
-    color: '#BFBFD3',
+    color: colors.textSecondary,
     fontSize: 12,
     alignSelf: 'flex-start',
     marginBottom: 10,
   },
   createRoomBtn: {
     width: '100%',
-    backgroundColor: '#FF4F72',
-    borderRadius: 8,
+    backgroundColor: colors.primary,
+    borderRadius: spacing.borderRadius || 12,
     paddingVertical: 14,
     alignItems: 'center',
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 5,
   },
-  createRoomText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  createRoomText: {
+    color: colors.textPrimary,
+    fontSize: 16,
+    fontWeight: '600',
+  },
   orContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 25,
     width: '100%',
   },
-  orText: { color: '#D9D9E3', fontSize: 12, marginHorizontal: 8 },
-  line: { flex: 1, height: 1, backgroundColor: '#2E2E4E' },
+  orText: {
+    color: colors.textSecondary,
+    fontSize: 12,
+    marginHorizontal: 6,
+  },
+  line: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.border || '#2E2E4E',
+  },
   input: {
     width: '100%',
-    backgroundColor: '#fff',
-    borderRadius: 8,
+    backgroundColor: colors.surface,
+    borderRadius: spacing.borderRadius || 12,
     fontSize: 18,
     fontWeight: '600',
-    color: '#101031',
+    color: colors.textDark,
     paddingVertical: 12,
+    paddingHorizontal: 16,
     marginBottom: 18,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   joinRoomBtn: {
     width: '100%',
-    borderWidth: 1,
-    borderColor: '#FF4F72',
-    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: colors.primary,
+    borderRadius: spacing.borderRadius || 12,
     paddingVertical: 14,
     alignItems: 'center',
+    backgroundColor: 'transparent',
   },
-  joinRoomText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  bottomText: { color: '#A5A5B5', fontSize: 12, marginTop: 8 },
+  joinRoomText: {
+    color: colors.primary,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  bottomText: {
+    color: colors.textSecondary,
+    fontSize: 12,
+    marginTop: 8,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
 });

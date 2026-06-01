@@ -1,4 +1,4 @@
-package com.loveloom
+package com.loveloom.play
 
 import android.app.Application
 import com.facebook.react.PackageList

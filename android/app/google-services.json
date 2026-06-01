@@ -7,26 +7,34 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:116340641228:android:26789d58cf0fad3fa6a169",
+        "mobilesdk_app_id": "1:116340641228:android:6f0eb707cc899ccba6a169",
         "android_client_info": {
-          "package_name": "com.loveloom"
+          "package_name": "com.loveloom.play"
         }
       },
       "oauth_client": [
         {
-          "client_id": "116340641228-73q21i2q7t2unit5bspsal9ktnancj9m.apps.googleusercontent.com",
+          "client_id": "116340641228-0e217kq5mj5bfr2qa2cc904d31p3fjp1.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.loveloom",
+            "package_name": "com.loveloom.play",
+            "certificate_hash": "9ab4b641e7dacb0cec4d6a64d5c2860175316d25"
+          }
+        },
+        {
+          "client_id": "116340641228-4h4gi8vkmeg744tqhes24fqgg4aprqcv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.loveloom.play",
             "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
           }
         },
         {
-          "client_id": "116340641228-du6c49i2v2d3tkik3gsat16u0iv696mq.apps.googleusercontent.com",
+          "client_id": "116340641228-trikt2s94usj4tsd74k1h5g1upgf8rki.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.loveloom",
-            "certificate_hash": "9ab4b641e7dacb0cec4d6a64d5c2860175316d25"
+            "package_name": "com.loveloom.play",
+            "certificate_hash": "e962afd3291c3c3c2ab820a7338bc7a39bcd09a4"
           }
         },
         {
